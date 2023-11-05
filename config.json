@@ -1,0 +1,41 @@
+{
+    "sim_mode": 1,
+    "sim_camera_config": {
+        "target_img_path": "./gz_x500_sim/opencv_mss_screen/target.png" 
+    },
+    "camera_config": {
+        "target_img_path": "" 
+    },
+    "mission": {
+        "grid_yaw": 135.0,
+        "grid_step": 1,
+        "min_relative_altitude": 2.0,
+        "home": {
+            "lat": 47.3977426,
+            "lon": 8.5455928
+        },
+        "offset": 0.00008,
+        "target_area": [
+            {
+                "alt": 502,
+                "lat": 47.39715,
+            	"lon": 8.54655
+            },
+            {
+                "alt": 502,
+                "lat": 47.39715,
+            	"lon": 8.54585
+            },
+            {
+                "alt": 502,
+                "lat": 47.39765,
+            	"lon": 8.54575
+            },
+            {
+                "alt": 502,
+                "lat": 47.39765,
+            	"lon": 8.54645
+            }
+        ]
+    }
+}
