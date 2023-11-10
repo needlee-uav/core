@@ -7,9 +7,9 @@ import modules.camera_handler as camera_handler
 import modules.vision_handler as vision_handler
 import modules.offboard_handler as offboard_handler
 import modules.stage_handler as stage_handler
+import modules.logger as logger
 
 class Pilot:
-
     def __init__(self, Drone):
         self.Drone = Drone
         config_file = open('config.json')
@@ -17,14 +17,16 @@ class Pilot:
         config_file.close()
         
         # Modules
+        self.Logger = logger.Logger()
         self.RouteHandler = route_handler.RouteHandler()
         self.SensorsHandler = sensors_handler.SensorsHandler()
         self.CameraHandler = camera_handler.CameraHandler(Config=self.Config)
         self.VisionHandler = vision_handler.VisionHandler(Config=self.Config)
         self.OffboardHandler = offboard_handler.OffboardHandler()
         self.StageHandler = stage_handler.StageHandler(Config=self.Config, RouteHandler=self.RouteHandler)
-        
+
         # Start parallel tasks
+        asyncio.ensure_future(self.Logger.log(SensorsHandler=self.SensorsHandler))
         asyncio.ensure_future(self.StageHandler.handle_stages())
         asyncio.ensure_future(self.SensorsHandler.update_position(Drone=self.Drone))
         asyncio.ensure_future(self.SensorsHandler.update_heading(Drone=self.Drone))
