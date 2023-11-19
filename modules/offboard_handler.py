@@ -13,7 +13,7 @@ class OffboardHandler:
             # "CAPTURE": 2
             if StageHandler.stage == 2 and StageHandler.offboard_mode == False:
                 await self.start_offboard(Drone=Drone, StageHandler=StageHandler)
-                await asyncio.sleep(2)
+                await asyncio.sleep(0.7)
                 await self.goto_target(Drone=Drone, VisionHandler=VisionHandler, SensorsHandler=SensorsHandler)
                 StageHandler.offboard_mode = False
                 await Drone.offboard.stop()
@@ -27,38 +27,10 @@ class OffboardHandler:
     
     async def start_offboard(self, Drone, StageHandler):
         await Drone.offboard.set_velocity_body(
-            VelocityBodyYawspeed(0.0, 0.0, 0.0, 0.0))
+            VelocityBodyYawspeed(2, 0.0, 0.0, 0.0))
         await Drone.offboard.start()
         StageHandler.offboard_mode = True
         print("OFFBOARD: started")
-
-    async def turn_to_grid_yaw(self, Drone, SensorsHandler, yaw):
-        await Drone.offboard.set_velocity_body(
-            VelocityBodyYawspeed(0.0, 0.0, 0.0, 0.0))
-        await Drone.offboard.start()
-
-        print("OFFBOARD: to grid yaw")
-        while SensorsHandler.heading > yaw + 0.2 or SensorsHandler.heading < yaw - 0.2:
-            await Drone.offboard.set_velocity_ned(VelocityNedYaw(0.0, 0.0, 0.0, yaw))
-            await asyncio.sleep(2)
-
-    async def fly_grid_route(self, Drone, StageHandler):
-        while (StageHandler.target_detected == False):
-            await Drone.offboard.set_velocity_body(
-                VelocityBodyYawspeed(2.0, 0.0, 0.0, 0.0))
-            await asyncio.sleep(1)
-
-        await self.change_velocity(Drone, 2.0, 0.5, 0.4)
-
-        while (StageHandler.target_captured == False):
-            await Drone.offboard.set_velocity_body(
-                VelocityBodyYawspeed(0.5, 0.0, 0.0, 0.0))
-            await asyncio.sleep(1)
-        await self.change_velocity(Drone, 0.5, 0.0, 0.2)
-        print("OFFBOARD: stop on captured target")
-        await Drone.offboard.set_velocity_body(
-            VelocityBodyYawspeed(0.0, 0.0, 0.0, 0.0))
-        await asyncio.sleep(2)
 
     async def change_velocity(self, Drone, curr_v, new_v, sec):
         step = (new_v - curr_v) / 4
@@ -71,12 +43,12 @@ class OffboardHandler:
     async def goto_target(self, Drone, VisionHandler, SensorsHandler):
         print("OFFBOARD: observe target")
         while (VisionHandler.target_coords[1] > 10 or VisionHandler.target_coords[1] < -10) or (VisionHandler.target_yaw_angle > 2 or VisionHandler.target_yaw_angle < -2):
-            if SensorsHandler.rel_alt < 8.0:
+            if SensorsHandler.rel_alt < 8.0 or VisionHandler.detection_threshold > 0.80:
                 break
             yaw_v = sqrt(abs(VisionHandler.target_yaw_angle))
             if VisionHandler.target_yaw_angle < 0: yaw_v *= -1
             await Drone.offboard.set_velocity_body(
-                VelocityBodyYawspeed(0.5, 0.0, 0.3, yaw_v)
+                VelocityBodyYawspeed(1, 0.0, 0.5, yaw_v)
                 )
             await asyncio.sleep(1)
         

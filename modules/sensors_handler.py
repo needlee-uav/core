@@ -14,13 +14,8 @@ class SensorsHandler:
             if lon + lat != self.position["lat"] + self.position["lon"]:
                 self.position["lat"] = lat
                 self.position["lon"] = lon
-    
-    async def update_quaternion(self, Drone):
-        async for euler in Drone.telemetry.attitude_euler():
-            pass
 
     async def update_heading(self, Drone):
         async for heading in Drone.telemetry.heading():            
             if round(heading.heading_deg, 1) != self.heading:
                 self.heading = round(heading.heading_deg, 1)
-
