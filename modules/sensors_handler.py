@@ -19,3 +19,4 @@ class SensorsHandler:
         async for heading in Drone.telemetry.heading():            
             if round(heading.heading_deg, 1) != self.heading:
                 self.heading = round(heading.heading_deg, 1)
+                
