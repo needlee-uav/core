@@ -8,6 +8,7 @@ import modules.vision_handler as vision_handler
 import modules.offboard_handler as offboard_handler
 import modules.stage_handler as stage_handler
 import modules.logger as logger
+import modules.server_handler as server_handler
 
 class Pilot:
     def __init__(self, Drone):
@@ -17,6 +18,7 @@ class Pilot:
         config_file.close()
         
         # Modules
+        self.ServerHandler = server_handler.ServerHandler()
         self.Logger = logger.Logger()
         self.RouteHandler = route_handler.RouteHandler()
         self.SensorsHandler = sensors_handler.SensorsHandler()
@@ -30,9 +32,9 @@ class Pilot:
         asyncio.ensure_future(self.StageHandler.handle_stages())
         asyncio.ensure_future(self.SensorsHandler.update_position(Drone=self.Drone))
         asyncio.ensure_future(self.SensorsHandler.update_heading(Drone=self.Drone))
-        asyncio.ensure_future(self.SensorsHandler.update_quaternion(Drone=self.Drone))
+        #asyncio.ensure_future(self.SensorsHandler.update_quaternion(Drone=self.Drone))
         asyncio.ensure_future(self.CameraHandler.read_sim_image())
         asyncio.ensure_future(self.VisionHandler.process_image(CameraHandler=self.CameraHandler, StageHandler=self.StageHandler))
         asyncio.ensure_future(self.OffboardHandler.handle_offboard(StageHandler=self.StageHandler, VisionHandler=self.VisionHandler, SensorsHandler=self.SensorsHandler, Drone=self.Drone))
         asyncio.ensure_future(self.RouteHandler.update_target_point(Drone=self.Drone, SensorsHandler=self.SensorsHandler, StageHandler=self.StageHandler))
-        
+        asyncio.ensure_future(self.ServerHandler.handle_log(SensorsHandler=self.SensorsHandler))
