@@ -18,19 +18,11 @@ async def run():
         if health.is_global_position_ok and health.is_home_position_ok:
             print("-- Global position state is good enough for flying.")
             break
-        
-    # Takeoff
-    print("-- Arming")
-    await Drone.action.arm()
-
-    print("-- Taking off")
-    await Drone.action.set_takeoff_altitude(7.0)
-    await Drone.action.takeoff()    
-    await asyncio.sleep(10)
 
     Pilot = pilot.Pilot(
         Drone=Drone
     )
+    await Pilot.prearm()
 
     while True:
         await asyncio.sleep(1)

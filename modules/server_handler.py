@@ -20,18 +20,27 @@ class ServerHandler:
         else:
             print('SERVER: Failed to connect')
     
-    async def handle_log(self, SensorsHandler):
+    async def handle_ready(self, SensorsHandler, Pilot):
         lat = SensorsHandler.position['lat']
         lon = SensorsHandler.position['lon']
         data = f'{lat}_{lon}_{SensorsHandler.heading}_{SensorsHandler.rel_alt}'
         self.make_handshake(data)
+        while not Pilot.ready:
+            lat = SensorsHandler.position['lat']
+            lon = SensorsHandler.position['lon']
+            url = f'http://127.0.0.1:5000/log/UAV-1234/{lat}_{lon}_{SensorsHandler.heading}_{SensorsHandler.rel_alt}'
+            res = requests.get(url).text
+            if res == "ready: 1":
+                Pilot.ready == True
+                return
+            await asyncio.sleep(0.1)
+
+    async def handle_log(self, SensorsHandler):
         while self.connected:
             lat = SensorsHandler.position['lat']
             lon = SensorsHandler.position['lon']
             url = f'http://127.0.0.1:5000/log/UAV-1234/{lat}_{lon}_{SensorsHandler.heading}_{SensorsHandler.rel_alt}'
-            print(url)
             res = requests.get(url).text
-            print(res)
             await asyncio.sleep(0.1)
         # SOME EMERGENCY LOGIC
         return

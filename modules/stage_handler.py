@@ -6,6 +6,8 @@ class StageHandler:
     offboard_mode = False
     stage = None
     stages = {
+        "READY": -1,
+        "ARM": 0,
         "ROUTE": 1,
         "CAPTURE": 2,
         "FAILSAFE": 3
@@ -25,7 +27,11 @@ class StageHandler:
 
     async def handle_stages(self):
         while True:
-            if not self.target_detected and self.stage != 1:
+            if self.stage == None:
+                self.switch_stage(stage="READY")
+            elif self.stage == -1:
+                pass
+            elif not self.target_detected and self.stage != 1:
                 self.switch_stage(stage="ROUTE")
             elif (self.target_detected and self.stage == 1):
                 self.switch_stage(stage="CAPTURE")
