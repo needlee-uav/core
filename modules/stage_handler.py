@@ -6,7 +6,7 @@ class StageHandler:
     offboard_mode = False
     stage = None
     stages = {
-        "READY": -1,
+        "PREARM": -1,
         "ARM": 0,
         "ROUTE": 1,
         "CAPTURE": 2,
@@ -24,17 +24,19 @@ class StageHandler:
         RouteHandler.target_point = self.route_points[0]
         RouteHandler.home = self.home
 
-
-    async def handle_stages(self):
+    
+    async def handle_stages(self, ServerHandler):
         while True:
             if self.stage == None:
-                self.switch_stage(stage="READY")
+                self.switch_stage(stage="PREARM")
+            elif ServerHandler.ready and self.stage == -1:
+                self.switch_stage(stage="ARM")
             elif self.stage == -1:
                 pass
-            elif not self.target_detected and self.stage != 1:
-                self.switch_stage(stage="ROUTE")
-            elif (self.target_detected and self.stage == 1):
-                self.switch_stage(stage="CAPTURE")
+            #elif not self.target_detected and self.stage != 1:
+            #    self.switch_stage(stage="ROUTE")
+            #elif (self.target_detected and self.stage == 1):
+            #    self.switch_stage(stage="CAPTURE")
             await asyncio.sleep(0.05)
     
     def switch_stage(self, stage):

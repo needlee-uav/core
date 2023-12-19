@@ -19,10 +19,7 @@ async def run():
             print("-- Global position state is good enough for flying.")
             break
 
-    Pilot = pilot.Pilot(
-        Drone=Drone
-    )
-    await Pilot.prearm()
+    pilot.Pilot(Drone=Drone)
 
     while True:
         await asyncio.sleep(1)
