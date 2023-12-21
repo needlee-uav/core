@@ -1,5 +1,6 @@
 import asyncio
 from mavsdk.offboard import (VelocityBodyYawspeed, VelocityNedYaw)
+from mavsdk.offboard import (VelocityBodyYawspeed, VelocityNedYaw)
 from math import sqrt
 
 class OffboardHandler:
@@ -25,6 +26,12 @@ class OffboardHandler:
                 VisionHandler.detection_threshold = 0.3
             await asyncio.sleep(0.1)
     
+    async def start_offboard_zero(self, Drone, StageHandler):
+        print("-- Turn clock-wise and climb")
+        await Drone.offboard.set_velocity_body(
+            VelocityBodyYawspeed(0.0, 0.0, -1.0, 60.0))
+        await asyncio.sleep(25)
+
     async def start_offboard(self, Drone, StageHandler):
         await Drone.offboard.set_velocity_body(
             VelocityBodyYawspeed(2, 0.0, 0.0, 0.0))

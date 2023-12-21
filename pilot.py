@@ -9,6 +9,8 @@ import modules.offboard_handler as offboard_handler
 import modules.stage_handler as stage_handler
 import modules.logger as logger
 import modules.server_handler as server_handler
+import modules.takeoff_handler as takeoff_handler
+from mavsdk.offboard import (VelocityBodyYawspeed, VelocityNedYaw)
 
 class Pilot:
     
@@ -20,6 +22,7 @@ class Pilot:
         self.ready = False
 
         # Modules
+        self.TakeoffHandler = takeoff_handler.TakeoffHandler()
         self.ServerHandler = server_handler.ServerHandler(server_config=self.Config["server"])
         self.Logger = logger.Logger()
         self.RouteHandler = route_handler.RouteHandler()
@@ -36,12 +39,16 @@ class Pilot:
         print("PILOT: log OK")
         asyncio.ensure_future(self.SensorsHandler.update_position(Drone=self.Drone))
         asyncio.ensure_future(self.SensorsHandler.update_heading(Drone=self.Drone))
+        asyncio.ensure_future(self.SensorsHandler.update_pitch_roll(Drone=self.Drone))
+        asyncio.ensure_future(self.SensorsHandler.update_vertical_velocity(Drone=self.Drone))
         print("PILOT: sensors OK")
         asyncio.ensure_future(self.StageHandler.handle_stages(ServerHandler=self.ServerHandler))
         print("PILOT: stage OK")
         asyncio.ensure_future(self.ServerHandler.handle_ready(SensorsHandler=self.SensorsHandler))
-        asyncio.ensure_future(self.prearm(StageHandler=self.StageHandler))
-        print("PILOT: prearm OK")
+        print("PILOT: prearm OK")  
+        asyncio.ensure_future(self.TakeoffHandler.softTakeoff(StageHandler=self.StageHandler, SensorsHandler=self.SensorsHandler, Drone=self.Drone))
+        print("PILOT: takeoff waiting OK")
+        
         #asyncio.ensure_future(self.CameraHandler.read_sim_image())
         #print("PILOT: camera OK")
         #asyncio.ensure_future(self.VisionHandler.process_image(CameraHandler=self.CameraHandler, StageHandler=self.StageHandler))
@@ -49,20 +56,4 @@ class Pilot:
         #asyncio.ensure_future(self.OffboardHandler.handle_offboard(StageHandler=self.StageHandler, VisionHandler=self.VisionHandler, SensorsHandler=self.SensorsHandler, Drone=self.Drone))
         #print("PILOT: offboard OK")
 
-    async def prearm(self, StageHandler):
-        while StageHandler.stage != 0:
-            await asyncio.sleep(0.1)
-        print("-- Arming")
-        await self.Drone.action.arm()  
-        print("PILOT: arm OK")
-
-        
-    async def takeoff(self):
-        print("-- Taking off")
-        await self.Drone.action.set_takeoff_altitude(7.0)
-        await self.Drone.action.takeoff()    
-        await asyncio.sleep(2)
-        asyncio.ensure_future(self.RouteHandler.update_target_point(Drone=self.Drone, SensorsHandler=self.SensorsHandler, StageHandler=self.StageHandler))
-        print("PILOT: route OK")
-        asyncio.ensure_future(self.ServerHandler.handle_log(SensorsHandler=self.SensorsHandler))
-        print("PILOT: log OK")
+    

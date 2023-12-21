@@ -7,7 +7,7 @@ class StageHandler:
     stage = None
     stages = {
         "PREARM": -1,
-        "ARM": 0,
+        "TAKEOFF": 0,
         "ROUTE": 1,
         "CAPTURE": 2,
         "FAILSAFE": 3
@@ -30,7 +30,7 @@ class StageHandler:
             if self.stage == None:
                 self.switch_stage(stage="PREARM")
             elif ServerHandler.ready and self.stage == -1:
-                self.switch_stage(stage="ARM")
+                self.switch_stage(stage="TAKEOFF")
             elif self.stage == -1:
                 pass
             #elif not self.target_detected and self.stage != 1:
