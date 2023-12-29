@@ -46,7 +46,7 @@ class Pilot:
         print("PILOT: stage OK")
         asyncio.ensure_future(self.ServerHandler.handle_ready(SensorsHandler=self.SensorsHandler))
         print("PILOT: prearm OK")  
-        asyncio.ensure_future(self.TakeoffHandler.softTakeoff(StageHandler=self.StageHandler, SensorsHandler=self.SensorsHandler, Drone=self.Drone))
+        asyncio.ensure_future(self.TakeoffHandler.soft_takeoff(StageHandler=self.StageHandler, SensorsHandler=self.SensorsHandler, Drone=self.Drone))
         print("PILOT: takeoff waiting OK")
         
         #asyncio.ensure_future(self.CameraHandler.read_sim_image())
