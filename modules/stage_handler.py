@@ -16,9 +16,6 @@ class StageHandler:
 
     def __init__(self, Config, RouteHandler):
         config = Config["mission"]
-        self.grid_yaw = config["grid_yaw"]
-        self.grid_step = config["grid_step"]
-        self.min_relative_altitude = config["min_relative_altitude"]
         self.home = config["home"]
         self.route_points = mission_planner.build_mission(self.home, config["target_area"], config["offset"])
         RouteHandler.route = self.route_points

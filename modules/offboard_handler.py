@@ -11,7 +11,6 @@ class OffboardHandler:
 
     async def handle_offboard(self, StageHandler, VisionHandler, SensorsHandler, Drone):
         while True:
-            # "CAPTURE": 2
             if StageHandler.stage == 2 and StageHandler.offboard_mode == False:
                 await self.start_offboard(Drone=Drone, StageHandler=StageHandler)
                 await asyncio.sleep(0.7)
@@ -26,12 +25,6 @@ class OffboardHandler:
                 VisionHandler.detection_threshold = 0.3
             await asyncio.sleep(0.1)
     
-    async def start_offboard_zero(self, Drone, StageHandler):
-        print("-- Turn clock-wise and climb")
-        await Drone.offboard.set_velocity_body(
-            VelocityBodyYawspeed(0.0, 0.0, -1.0, 60.0))
-        await asyncio.sleep(25)
-
     async def start_offboard(self, Drone, StageHandler):
         await Drone.offboard.set_velocity_body(
             VelocityBodyYawspeed(2, 0.0, 0.0, 0.0))
