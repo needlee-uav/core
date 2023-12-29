@@ -2,12 +2,13 @@
 Test instance reads Gazebo sim camera directly from the screen. Pay attention to the camera module settings
 ### Install
 ```
-git clone --depth 1 --branch v1.14.0-rc1 https://github.com/PX4/PX4-Autopilot.git --recursive
-bash ./PX4-Autopilot/Tools/setup/ubuntu.sh
+sudo apt update && sudo apt install python3-pip
+pip3 install --user --upgrade pip
+pip3 install --user mavsdk
+sudo pip3 install mavproxy (optional)
+sudo apt remove modemmanager (optional)
+sudo chmod a+rw /dev/ttyACM0
 
-sudo reboot
-
-pip3 install mavsdk
 pip3 install aioconsole
 pip3 install opencv-python
 pip3 install ultralytics
