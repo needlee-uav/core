@@ -34,14 +34,14 @@ class Pilot:
         
         print(f'MODE: {self.Config["mode"]}')
         if self.Config["mode"] == "main":
-            self.ensure_features_main()
+            self.run_async_main()
         elif self.Config["mode"] == "test":
             self.TestScenariosHandler = test_scenarios_handler.TestScenariosHandler()
-            self.ensure_features_test()
+            self.run_async_test()
         elif self.Config["mode"] == "sim":
-            self.ensure_features_sim()
+            self.run_async_sim()
     
-    def ensure_features_sim(self):
+    def run_async_sim(self):
         asyncio.ensure_future(self.Logger.log(SensorsHandler=self.SensorsHandler))
         print("PILOT: log OK")
         asyncio.ensure_future(self.SensorsHandler.update_position(Drone=self.Drone))
@@ -65,10 +65,10 @@ class Pilot:
         asyncio.ensure_future(self.TakeoffHandler.soft_takeoff(StageHandler=self.StageHandler, SensorsHandler=self.SensorsHandler, Drone=self.Drone))
         print("PILOT: takeoff OK")
 
-    def ensure_features_test(self):
+    def run_async_test(self):
         asyncio.ensure_future(self.Logger.log(SensorsHandler=self.SensorsHandler))
         print("PILOT: log OK")
-        asyncio.ensure_future(self.SensorsHandler.update_position(Drone=self.Drone))
+        #asyncio.ensure_future(self.SensorsHandler.update_position(Drone=self.Drone))
         asyncio.ensure_future(self.SensorsHandler.update_heading(Drone=self.Drone))
         asyncio.ensure_future(self.SensorsHandler.update_pitch_roll(Drone=self.Drone))
         asyncio.ensure_future(self.SensorsHandler.update_vertical_velocity(Drone=self.Drone))
@@ -89,5 +89,5 @@ class Pilot:
         #asyncio.ensure_future(self.OffboardHandler.handle_offboard(StageHandler=self.StageHandler, VisionHandler=self.VisionHandler, SensorsHandler=self.SensorsHandler, Drone=self.Drone))
         #print("PILOT: offboard OK")
 
-    def ensure_features_main(self):
+    def run_async_main(self):
         pass
