@@ -10,6 +10,8 @@ class RouteHandler:
     home = None
 
     async def update_target_point(self, Drone, SensorsHandler, StageHandler):
+        while not StageHandler.in_air:
+            await asyncio.sleep(1)
         while True:
             if not StageHandler.target_detected:
                 await self.goto_target_point(Drone=Drone, SensorsHandler=SensorsHandler)

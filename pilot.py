@@ -10,7 +10,7 @@ import modules.stage_handler as stage_handler
 import modules.logger as logger
 import modules.server_handler as server_handler
 import modules.takeoff_handler as takeoff_handler
-from mavsdk.offboard import (VelocityBodyYawspeed, VelocityNedYaw)
+import test_scenarios.test_scenarios_handler as test_scenarios_handler
 
 class Pilot:
     
@@ -32,9 +32,40 @@ class Pilot:
         self.OffboardHandler = offboard_handler.OffboardHandler()
         self.StageHandler = stage_handler.StageHandler(Config=self.Config, RouteHandler=self.RouteHandler)
         
-        self.ensure_features()
-        
-    def ensure_features(self):
+        print(f'MODE: {self.Config["mode"]}')
+        if self.Config["mode"] == "main":
+            self.ensure_features_main()
+        elif self.Config["mode"] == "test":
+            self.TestScenariosHandler = test_scenarios_handler.TestScenariosHandler()
+            self.ensure_features_test()
+        elif self.Config["mode"] == "sim":
+            self.ensure_features_sim()
+    
+    def ensure_features_sim(self):
+        asyncio.ensure_future(self.Logger.log(SensorsHandler=self.SensorsHandler))
+        print("PILOT: log OK")
+        asyncio.ensure_future(self.SensorsHandler.update_position(Drone=self.Drone))
+        asyncio.ensure_future(self.SensorsHandler.update_heading(Drone=self.Drone))
+        asyncio.ensure_future(self.SensorsHandler.update_pitch_roll(Drone=self.Drone))
+        asyncio.ensure_future(self.SensorsHandler.update_vertical_velocity(Drone=self.Drone))
+        print("PILOT: sensors OK")
+        asyncio.ensure_future(self.StageHandler.handle_stages(ServerHandler=self.ServerHandler))
+        print("PILOT: stage OK")
+        self.ready = True
+        self.ServerHandler.ready = True
+        print("PILOT: prearm OK")
+        asyncio.ensure_future(self.RouteHandler.update_target_point(Drone=self.Drone, SensorsHandler=self.SensorsHandler, StageHandler=self.StageHandler))
+        print("PILOT: route OK")
+        asyncio.ensure_future(self.CameraHandler.read_sim_image())
+        print("PILOT: camera OK")
+        asyncio.ensure_future(self.VisionHandler.process_image(CameraHandler=self.CameraHandler, StageHandler=self.StageHandler))
+        print("PILOT: vision OK")
+        asyncio.ensure_future(self.OffboardHandler.handle_offboard(StageHandler=self.StageHandler, VisionHandler=self.VisionHandler, SensorsHandler=self.SensorsHandler, Drone=self.Drone))
+        print("PILOT: offboard OK")
+        asyncio.ensure_future(self.TakeoffHandler.soft_takeoff(StageHandler=self.StageHandler, SensorsHandler=self.SensorsHandler, Drone=self.Drone))
+        print("PILOT: takeoff OK")
+
+    def ensure_features_test(self):
         asyncio.ensure_future(self.Logger.log(SensorsHandler=self.SensorsHandler))
         print("PILOT: log OK")
         asyncio.ensure_future(self.SensorsHandler.update_position(Drone=self.Drone))
@@ -45,9 +76,11 @@ class Pilot:
         asyncio.ensure_future(self.StageHandler.handle_stages(ServerHandler=self.ServerHandler))
         print("PILOT: stage OK")
         asyncio.ensure_future(self.ServerHandler.handle_ready(SensorsHandler=self.SensorsHandler))
-        print("PILOT: prearm OK")  
-        asyncio.ensure_future(self.TakeoffHandler.soft_takeoff(StageHandler=self.StageHandler, SensorsHandler=self.SensorsHandler, Drone=self.Drone))
-        print("PILOT: takeoff waiting OK")
+        print("PILOT: prearm OK")
+        asyncio.ensure_future(self.TestScenariosHandler.handle_scenarios(ServerHandler=self.ServerHandler, StageHandler=self.StageHandler, SensorsHandler=self.SensorsHandler, Drone=self.Drone))
+        
+        #asyncio.ensure_future(self.TakeoffHandler.soft_takeoff(StageHandler=self.StageHandler, SensorsHandler=self.SensorsHandler, Drone=self.Drone))
+        #print("PILOT: takeoff waiting OK")
         
         #asyncio.ensure_future(self.CameraHandler.read_sim_image())
         #print("PILOT: camera OK")
@@ -56,4 +89,5 @@ class Pilot:
         #asyncio.ensure_future(self.OffboardHandler.handle_offboard(StageHandler=self.StageHandler, VisionHandler=self.VisionHandler, SensorsHandler=self.SensorsHandler, Drone=self.Drone))
         #print("PILOT: offboard OK")
 
-    
+    def ensure_features_main(self):
+        pass

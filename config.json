@@ -1,4 +1,5 @@
 {
+    "mode": "sim",
     "server": {
         "url": "https://needlee-server-4ohicpymya-uc.a.run.app",
         "drone_id": "UAV-1234"
