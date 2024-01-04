@@ -1,7 +1,7 @@
 import asyncio
 from mavsdk.offboard import VelocityBodyYawspeed
 
-class SoftTakeoffScenario:
+class OffboardCommandsScenario:
 
     def __init__(self):
         pass
@@ -35,6 +35,25 @@ class SoftTakeoffScenario:
         
         print(f"velocity: {SensorsHandler.velocity_down_m_s}")
         await asyncio.sleep(5)
+        print("test offboard")
+        await Drone.offboard.set_velocity_body(
+            VelocityBodyYawspeed(0.0, 0.3, 0.0, 0.0))
+        await asyncio.sleep(10)
+        await Drone.offboard.set_velocity_body(
+            VelocityBodyYawspeed(0.0, -0.3, 0.0, 0.0))
+        await asyncio.sleep(10)
+        await Drone.offboard.set_velocity_body(
+            VelocityBodyYawspeed(0.3, 0.0, 0.0, 0.0))
+        await asyncio.sleep(10)
+        await Drone.offboard.set_velocity_body(
+            VelocityBodyYawspeed(-0.3, 0.0, 0.0, 0.0))
+        await asyncio.sleep(10)
+        await Drone.offboard.set_velocity_body(
+            VelocityBodyYawspeed(0.0, 0.0, 0.0, 7))
+        await asyncio.sleep(10)
+        await Drone.offboard.set_velocity_body(
+            VelocityBodyYawspeed(0.0, 0.0, 0.0, -7))
+        await asyncio.sleep(10)
         print("slow landing")
         await Drone.offboard.set_velocity_body(
             VelocityBodyYawspeed(0.0, 0.0, 0.1, 0.0))

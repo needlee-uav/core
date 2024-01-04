@@ -1,7 +1,7 @@
 {
-    "mode": "sim",
+    "mode": "test",
     "server": {
-        "url": "https://needlee-server-4ohicpymya-uc.a.run.app",
+        "url": "https://needlee-server-4ohicpymya-uc.a.run.app/",
         "drone_id": "UAV-1234"
     },
     "sim_mode": 1,
@@ -12,9 +12,6 @@
         "target_img_path": "" 
     },
     "mission": {
-        "grid_yaw": 135.0,
-        "grid_step": 1,
-        "min_relative_altitude": 2.0,
         "home": {
             "lat": 47.3977426,
             "lon": 8.5455928

@@ -68,7 +68,7 @@ class Pilot:
     def run_async_test(self):
         asyncio.ensure_future(self.Logger.log(SensorsHandler=self.SensorsHandler))
         print("PILOT: log OK")
-        #asyncio.ensure_future(self.SensorsHandler.update_position(Drone=self.Drone))
+        asyncio.ensure_future(self.SensorsHandler.update_position(Drone=self.Drone))
         asyncio.ensure_future(self.SensorsHandler.update_heading(Drone=self.Drone))
         asyncio.ensure_future(self.SensorsHandler.update_pitch_roll(Drone=self.Drone))
         asyncio.ensure_future(self.SensorsHandler.update_vertical_velocity(Drone=self.Drone))

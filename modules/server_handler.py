@@ -8,6 +8,7 @@ class ServerHandler:
         self.drone_id = server_config['drone_id']
         self.connected = False
         self.ready = False
+        self.test_mode = None
 
     def make_handshake(self, data):
         i = 0
@@ -33,11 +34,16 @@ class ServerHandler:
             lon = SensorsHandler.position['lon']
             url = f'{self.url}/log/{self.drone_id}/{lat}_{lon}_{SensorsHandler.heading}_{SensorsHandler.rel_alt}'
             res = requests.get(url).text
-            if res == "ready: 1":
+            if "ready: 1" in res:
+                self.parse_ready_res(res)
                 print("SERVER: ready")
                 self.ready = True
                 return
             await asyncio.sleep(0.1)
+
+    def parse_ready_res(self, res):
+        self.test_mode = res.split('; ')[1].split(': ')[1]
+        print(f'Test mode: {self.test_mode}')
 
     async def handle_log(self, SensorsHandler):
         while self.connected:
