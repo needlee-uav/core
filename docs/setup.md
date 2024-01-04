@@ -52,3 +52,55 @@ libcamera-hello --help
 libcamera-jpeg -o test.jpg
 python3 ./needlee/rpi_camera_test.py
 ```
+### Setup service
+```
+sudo nano /lib/systemd/system/test.service
+```
+```
+ [Unit]
+ Description=Test Service
+ After=multi-user.target
+
+ [Service]
+ Type=idle
+ ExecStart=/usr/bin/python /home/px/test.py
+
+ [Install]
+ WantedBy=multi-user.target
+```
+
+Script
+```
+import requests
+import time
+
+def handshake():
+    data='42.134_43.123_123_8'
+    connected=False
+    i=0
+    while not connected:
+        try:
+            i+=1
+            url=f'https://needlee-server-4ohicpymya-uc.a.run.app/handshake/UAV-1234/{data}'
+            res=requests.get(url).text
+            print(res)
+            if res=='success':
+                connected=True
+                print('success')
+        except:
+            print('internet error')
+        time.sleep(1)
+
+handshake()
+```
+
+```
+sudo chmod 644 /lib/systemd/system/test.service
+sudo systemctl daemon-reload
+sudo systemctl enable sample.service
+sudo reboot
+```
+
+```
+systemctl status test.service
+```
