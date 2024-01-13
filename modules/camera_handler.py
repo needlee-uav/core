@@ -4,8 +4,8 @@ import mss
 from PIL import Image
 
 class CameraHandler:
-    def __init__(self, tcp_source) -> None:
-        self.cap = cv.VideoCapture(tcp_source)
+    def __init__(self, Config) -> None:
+        self.cap = cv.VideoCapture('tcp://127.0.0.1:8888')
         self.cap.set(cv.CAP_PROP_FPS, 24)
         self.cap.set(cv.CAP_PROP_BUFFERSIZE, 0)
         self.q = queue.Queue()
