@@ -5,6 +5,7 @@ Test instance reads Gazebo sim camera directly from the screen. Pay attention to
 sudo apt update && sudo apt install python3-pip
 pip3 install --user --upgrade pip
 pip3 install --user mavsdk
+pip3 install --user numpy
 sudo chmod a+rw /dev/ttyACM0
 
 pip3 install aioconsole
@@ -177,6 +178,32 @@ libcamera-hello --help
 libcamera-jpeg -o test.jpg
 python3 ./needlee/rpi_camera_test.py
 ```
+Streaming TCP full test
+```
+sudo libcamera-vid -n -t 0 --width 640 --height 480 --framerate 24 --inline --listen -o tcp://127.0.0.1:8888
+python3 ./needlee/rpi_camera_test.py
+```
+Troubleshooting:
+
+https://www.raspberrypi.com/documentation/computers/camera_software.html
+
+https://www.waveshare.com/rpi-camera-b.htm
+
+https://docs.ultralytics.com/guides/raspberry-pi/#modify-detectpy
+
+### Setup Needlee Core
+```
+sudo apt update && sudo apt install python3-pip
+pip3 install --user --upgrade pip
+pip3 install --user mavsdk
+pip3 install --user numpy
+pip3 install --user aioconsole
+pip3 install --user opencv-python
+pip3 install --user ultralytics
+
+sudo chmod a+rw /dev/ttyACM0 # optional, tests only
+```
+
 ### Setup service
 ```
 sudo nano /lib/systemd/system/test.service

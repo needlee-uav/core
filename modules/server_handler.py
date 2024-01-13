@@ -39,7 +39,7 @@ class ServerHandler:
                 print("SERVER: ready")
                 self.ready = True
                 return
-            await asyncio.sleep(0.1)
+            await asyncio.sleep(1)
 
     def parse_ready_res(self, res):
         self.test_mode = res.split('; ')[1].split(': ')[1]
@@ -51,7 +51,7 @@ class ServerHandler:
             lon = SensorsHandler.position['lon']
             url = f'{self.url}/log/{self.drone_id}/{lat}_{lon}_{SensorsHandler.heading}_{SensorsHandler.rel_alt}'
             res = requests.get(url).text
-            await asyncio.sleep(0.1)
+            await asyncio.sleep(1)
         # SOME EMERGENCY LOGIC
         return
     

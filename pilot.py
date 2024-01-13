@@ -28,6 +28,8 @@ class Pilot:
         self.RouteHandler = route_handler.RouteHandler()
         self.SensorsHandler = sensors_handler.SensorsHandler()
         self.CameraHandler = camera_handler.CameraHandler(Config=self.Config)
+        self.CameraTestScreen = camera_handler.CameraTestScreen()
+        #self.SimCameraHandler = camera_handler.SimCameraHandler(Config=self.Config)
         self.VisionHandler = vision_handler.VisionHandler(Config=self.Config)
         self.OffboardHandler = offboard_handler.OffboardHandler()
         self.StageHandler = stage_handler.StageHandler(Config=self.Config, RouteHandler=self.RouteHandler)
@@ -82,7 +84,7 @@ class Pilot:
         #asyncio.ensure_future(self.TakeoffHandler.soft_takeoff(StageHandler=self.StageHandler, SensorsHandler=self.SensorsHandler, Drone=self.Drone))
         #print("PILOT: takeoff waiting OK")
         
-        #asyncio.ensure_future(self.CameraHandler.read_sim_image())
+        asyncio.ensure_future(self.CameraTestScreen.show_frame(CameraHandler=self.CameraHandler))
         #print("PILOT: camera OK")
         #asyncio.ensure_future(self.VisionHandler.process_image(CameraHandler=self.CameraHandler, StageHandler=self.StageHandler))
         #print("PILOT: vision OK")
