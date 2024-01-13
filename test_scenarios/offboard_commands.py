@@ -1,5 +1,5 @@
 import asyncio
-from mavsdk.offboard import VelocityBodyYawspeed
+from mavsdk.offboard import (Attitude, VelocityBodyYawspeed)
 
 class OffboardCommandsScenario:
 
@@ -12,14 +12,15 @@ class OffboardCommandsScenario:
             await asyncio.sleep(0.1)
         print("ready")
         asyncio.ensure_future(self.kill_on_takeoff_shake(StageHandler=StageHandler, SensorsHandler=SensorsHandler, Drone=Drone))
+        
+        print("TAKEOFF: starting offboard")
+        await Drone.offboard.set_attitude(Attitude(0.0, 0.0, 0.0, 0.0))
+        await Drone.offboard.start()
+        await asyncio.sleep(2)
+        print("TAKEOFF: offboard OK")
         print("-- Arming")
         await Drone.action.arm()
         print("TAKEOFF: arm OK")
-        print("TAKEOFF: starting offboard")
-        await Drone.offboard.set_velocity_body(
-            VelocityBodyYawspeed(0.0, 0.0, 0.0, 0.0))
-        await Drone.offboard.start()
-        print("TAKEOFF: offboard OK")
 
         throttle = 0
         while SensorsHandler.velocity_down_m_s == 0:
