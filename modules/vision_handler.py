@@ -2,6 +2,34 @@ import asyncio
 import cv2 as cv
 import math
 from ultralytics import YOLO
+import datetime
+
+class YoloHandler:
+    x1 = 0
+    y1 = 0
+    x2 = 0
+    y2 = 0
+    def __init__(self):
+        self.model = YOLO('yolov5nu.onnx')
+
+    async def detect(self, CameraHandler):
+        while True:
+            frame = CameraHandler.read_frame()
+            results = self.model(frame, verbose=False)
+            for result in results:
+                for r in result.boxes.data.tolist():
+                    x1, y1, x2, y2, score, class_id = r
+                    if score > 30 and int(class_id) == 0:
+                        self.x1 = x1
+                        self.y1 = y1
+                        self.x2 = x2
+                        self.y2 = y2
+            cv.rectangle(frame, (x1, y1), (x2, y2), (255, 255, 0), 2)
+            cv.imshow('detected', frame)
+            print(f"YOLO: detected at {datetime.datetime.now()}")
+            if chr(cv.waitKey(1)&255) == 'q':
+                break
+            await asyncio.sleep(0.05)
 
 class VisionHandler:
     target = None
