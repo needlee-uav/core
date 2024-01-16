@@ -30,10 +30,13 @@ class Pilot:
         self.CameraHandler = camera_handler.CameraHandler(Config=self.Config)
         self.CameraTestScreen = camera_handler.CameraTestScreen()
         #self.SimCameraHandler = camera_handler.SimCameraHandler(Config=self.Config)
-        self.VisionHandler = vision_handler.VisionHandler(Config=self.Config)
+        #self.VisionHandler = vision_handler.VisionHandler(Config=self.Config)
         self.YoloHandler = vision_handler.YoloHandler()
         self.OffboardHandler = offboard_handler.OffboardHandler()
         self.StageHandler = stage_handler.StageHandler(Config=self.Config, RouteHandler=self.RouteHandler)
+        
+        asyncio.ensure_future(self.YoloHandler.detect(CameraHandler=self.CameraHandler))
+        print("YOLO: detect OK")
         
         print(f'MODE: {self.Config["mode"]}')
         if self.Config["mode"] == "main":
@@ -86,9 +89,7 @@ class Pilot:
         #print("PILOT: takeoff waiting OK")
         
         #asyncio.ensure_future(self.CameraTestScreen.show_frame(CameraHandler=self.CameraHandler))
-        
-        asyncio.ensure_future(self.YoloHandler.detect(CameraHandler=self.CameraHandler))
-        print("YOLO: detect OK")
+
         #print("PILOT: camera OK")
         #asyncio.ensure_future(self.VisionHandler.process_image(CameraHandler=self.CameraHandler, StageHandler=self.StageHandler))
         #print("PILOT: vision OK")

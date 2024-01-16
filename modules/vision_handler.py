@@ -29,7 +29,7 @@ class YoloHandler:
             print(f"YOLO: detected at {datetime.datetime.now()}")
             if chr(cv.waitKey(1)&255) == 'q':
                 break
-            await asyncio.sleep(0.05)
+            await asyncio.sleep(0.01)
 
 class VisionHandler:
     target = None
