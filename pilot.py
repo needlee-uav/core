@@ -37,7 +37,7 @@ class Pilot:
         
         asyncio.ensure_future(self.YoloHandler.detect(CameraHandler=self.CameraHandler))
         print("YOLO: detect OK")
-        
+
         print(f'MODE: {self.Config["mode"]}')
         if self.Config["mode"] == "main":
             self.run_async_main()
@@ -83,7 +83,7 @@ class Pilot:
         print("PILOT: stage OK")
         asyncio.ensure_future(self.ServerHandler.handle_ready(SensorsHandler=self.SensorsHandler))
         print("PILOT: prearm OK")
-        asyncio.ensure_future(self.TestScenariosHandler.handle_scenarios(ServerHandler=self.ServerHandler, StageHandler=self.StageHandler, SensorsHandler=self.SensorsHandler, Drone=self.Drone))
+        #asyncio.ensure_future(self.TestScenariosHandler.handle_scenarios(ServerHandler=self.ServerHandler, StageHandler=self.StageHandler, SensorsHandler=self.SensorsHandler, Drone=self.Drone))
         
         #asyncio.ensure_future(self.TakeoffHandler.soft_takeoff(StageHandler=self.StageHandler, SensorsHandler=self.SensorsHandler, Drone=self.Drone))
         #print("PILOT: takeoff waiting OK")

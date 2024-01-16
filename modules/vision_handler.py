@@ -19,12 +19,12 @@ class YoloHandler:
             for result in results:
                 for r in result.boxes.data.tolist():
                     x1, y1, x2, y2, score, class_id = r
-                    if score > 30 and int(class_id) == 0:
+                    if score > 0.30 and int(class_id) == 0:
                         self.x1 = x1
                         self.y1 = y1
                         self.x2 = x2
                         self.y2 = y2
-            cv.rectangle(frame, (x1, y1), (x2, y2), (255, 255, 0), 2)
+                        cv.rectangle(frame, (x1, y1), (x2, y2), (255, 255, 0), 2)
             cv.imshow('detected', frame)
             print(f"YOLO: detected at {datetime.datetime.now()}")
             if chr(cv.waitKey(1)&255) == 'q':
