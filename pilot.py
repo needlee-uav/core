@@ -28,7 +28,7 @@ class Pilot:
         self.RouteHandler = route_handler.RouteHandler()
         self.SensorsHandler = sensors_handler.SensorsHandler()
         self.CameraHandler = camera_handler.CameraHandler(Config=self.Config)
-        self.CameraTestScreen = camera_handler.CameraTestScreen()
+        #self.CameraTestScreen = camera_handler.CameraTestScreen()
         #self.SimCameraHandler = camera_handler.SimCameraHandler(Config=self.Config)
         #self.VisionHandler = vision_handler.VisionHandler(Config=self.Config)
         self.YoloHandler = vision_handler.YoloHandler()
@@ -81,7 +81,7 @@ class Pilot:
         print("PILOT: sensors OK")
         asyncio.ensure_future(self.StageHandler.handle_stages(ServerHandler=self.ServerHandler))
         print("PILOT: stage OK")
-        asyncio.ensure_future(self.ServerHandler.handle_ready(SensorsHandler=self.SensorsHandler))
+        #asyncio.ensure_future(self.ServerHandler.handle_ready(SensorsHandler=self.SensorsHandler))
         print("PILOT: prearm OK")
         #asyncio.ensure_future(self.TestScenariosHandler.handle_scenarios(ServerHandler=self.ServerHandler, StageHandler=self.StageHandler, SensorsHandler=self.SensorsHandler, Drone=self.Drone))
         
