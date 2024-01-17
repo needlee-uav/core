@@ -19,9 +19,9 @@ git clone https://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@github.com/needlee-ua
 cd ~/PX4-Autopilot
 make px4_sitl_default gz_x500
 ```
-### Run test T-Needle app
+### Run test Needlee simulation
 ```
-cd ~/t-needle
+cd ~/core
 python3 main.py
 ```
 ## Setup Raspberry Pi environment on Debian Bookworm 64 bit
@@ -43,8 +43,6 @@ pip3 install opencv-python
 pip3 install ultralytics
 git clone https://github.com/needlee-uav/core
 ```
-
-
 
 ============================================
 
