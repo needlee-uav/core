@@ -6,7 +6,6 @@ sudo apt update && sudo apt install python3-pip
 pip3 install --user --upgrade pip
 pip3 install --user mavsdk
 pip3 install --user numpy
-sudo chmod a+rw /dev/ttyACM0
 
 pip3 install aioconsole
 pip3 install opencv-python
