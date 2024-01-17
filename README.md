@@ -11,7 +11,7 @@ sudo chmod a+rw /dev/ttyACM0
 pip3 install aioconsole
 pip3 install opencv-python
 pip3 install ultralytics
-git clone https://github.com/needlee-uav/core
+git clone https://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@github.com/needlee-uav/core.git
 ```
 
 ### Run simulation
