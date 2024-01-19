@@ -27,14 +27,6 @@ class CameraHandler:
     def read_frame(self):
         return self.q.get()
 
-class CameraTestScreen:
-    async def show_frame(self, CameraHandler):
-        while True:
-            frame = CameraHandler.read_frame()
-            cv.imshow('frame', frame)
-            if chr(cv.waitKey(1)&255) == 'q': break
-            await asyncio.sleep(0.05)
-
 class SimCameraHandler:
     config = {}
     image = None
@@ -58,19 +50,19 @@ class SimCameraHandler:
         else:
             self.config = Config["camera_config"]
 
-    async def read_sim_image(self):
+    def read_frame(self):
         monitor = self.sct.monitors[1]
-        while True:
-            screenShot = self.sct.grab(monitor)
-            img = Image.frombytes(
-                'RGB', 
-                (screenShot.width, screenShot.height), 
-                screenShot.bgra, 
-                'raw', 
-                'BGRX'
-            )
-            self.image = np.array(img)[600:1000, 1500:1900]
-                
-            await asyncio.sleep(0.1)
+        
+        screenShot = self.sct.grab(monitor)
+        img = Image.frombytes(
+            'RGB', 
+            (screenShot.width, screenShot.height), 
+            screenShot.bgra, 
+            'raw', 
+            'BGRX'
+        )
+        self.image = cv.cvtColor(np.array(img)[600:1000, 1500:1900], cv.COLOR_BGRA2RGB)
+        return self.image
+            
 
     

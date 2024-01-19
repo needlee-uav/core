@@ -6,8 +6,8 @@ import pilot as pilot
 
 async def run():
     Drone = System()
-    #await Drone.connect(system_address="udp://:14540")
-    await Drone.connect(system_address="serial:///dev/ttyACM0")
+    await Drone.connect(system_address="udp://:14540")
+    #await Drone.connect(system_address="serial:///dev/ttyACM0")
     print("Waiting for drone to connect...")
     async for state in Drone.core.connection_state():
         if state.is_connected:
