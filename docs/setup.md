@@ -9,7 +9,7 @@ pip3 install --user numpy
 sudo chmod a+rw /dev/ttyACM0
 
 pip3 install aioconsole
-pip3 install opencv-python
+pip3 install --user opencv-contrib-python==4.5.5.62
 pip3 install ultralytics
 git clone https://github.com/steven-kollo/t-needle
 ```
@@ -39,7 +39,7 @@ sudo apt-get install -y build-essential tk-dev libncurses5-dev libncursesw5-dev 
 
 pip3 install mavsdk
 pip3 install aioconsole
-pip3 install opencv-python
+pip3 install --user opencv-contrib-python==4.5.5.62
 pip3 install ultralytics
 git clone https://github.com/steven-kollo/t-needle
 ```
@@ -180,7 +180,7 @@ python3 ./needlee/rpi_camera_test.py
 ```
 Streaming TCP full test
 ```
-sudo libcamera-vid -n -t 0 --width 640 --height 480 --framerate 24 --inline --listen -o tcp://127.0.0.1:8888
+sudo libcamera-vid -n -t 0 --width 320 --height 320 --framerate 10 --mode 320:320:10 --inline --listen -o tcp://127.0.0.1:8888
 python3 ./needlee/rpi_camera_test.py
 ```
 Troubleshooting:
@@ -198,7 +198,7 @@ pip3 install --user --upgrade pip
 pip3 install --user mavsdk
 pip3 install --user numpy
 pip3 install --user aioconsole
-pip3 install --user opencv-python
+pip3 install --user opencv-contrib-python==4.5.5.62
 pip3 install --user ultralytics
 
 sudo chmod a+rw /dev/ttyACM0 # optional, tests only

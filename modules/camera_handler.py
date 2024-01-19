@@ -2,7 +2,7 @@ import asyncio, queue, threading, time, cv2 as cv
 import numpy as np
 import mss
 from PIL import Image
-# sudo libcamera-vid -n -t 0 --width 332 --height 332 --framerate 10 --mode 332:332:10 --inline --listen -o tcp://127.0.0.1:8888
+# sudo libcamera-vid -n -t 0 --width 320 --height 320 --framerate 10 --mode 320:320:10 --inline --listen -o tcp://127.0.0.1:8888
 class CameraHandler:
     def __init__(self, Config) -> None:
         self.cap = cv.VideoCapture('tcp://127.0.0.1:8888')

@@ -25,7 +25,7 @@ class Target:
             ok, bbox = self.tracker.update(frame)
             if ok == True:
                 (x, y, w, h) = [int(v) for v in bbox]
-                self.target_coords = (int(x+w/2) - 200, 200 - int(y+h/2))
+                self.target_coords = (int(x+w/2) - 160, 160 - int(y+h/2))
                 #self.calculate_distance_to_target()
                 
                 if self.wh / (w+h) < 0.8 or self.wh / (w+h) > 1.2 or x+y < 10: YOLO.detection_threshold = 0.3
@@ -130,7 +130,7 @@ class VisionHandler:
                 ok, bbox = self.tracker.update(image)
                 if ok == True:
                     (x, y, w, h) = [int(v) for v in bbox]
-                    self.target_coords = (int(x+w/2) - 200, 200 - int(y+h/2))
+                    self.target_coords = (int(x+w/2) - 160, 160 - int(y+h/2))
                     print(x)
                     self.calculate_distance_to_target()
                     cv.rectangle(image, (x, y), (x+w, y+h), (255, 255, 0), 1)
