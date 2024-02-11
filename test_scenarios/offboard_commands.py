@@ -1,4 +1,4 @@
-import asyncio
+import asyncio, datetime
 from mavsdk.offboard import (Attitude, VelocityBodyYawspeed)
 
 class OffboardCommandsScenario:
@@ -31,11 +31,18 @@ class OffboardCommandsScenario:
             throttle = round(throttle - 0.1, 1)
             await Drone.offboard.set_velocity_body(
                 VelocityBodyYawspeed(0.0, 0.0, throttle, 0.0))
+            
             print(f"throttle: {throttle}")
             await asyncio.sleep(2)
+        start_time = datetime.datetime.now()
+        while SensorsHandler.rel_alt < 4:
+            diff = int(str(datetime.datetime.now() - start_time).split('.')[0].split(":")[2])
+            if diff > 20: break
+            print(f"seconds: {diff}")
+            print(f"velocity: {SensorsHandler.velocity_down_m_s}")
+            print(f"altitude: {SensorsHandler.rel_alt}")
+            await asyncio.sleep(1)
         
-        print(f"velocity: {SensorsHandler.velocity_down_m_s}")
-        await asyncio.sleep(5)
         print("test offboard")
         await Drone.offboard.set_velocity_body(
             VelocityBodyYawspeed(0.0, 0.3, 0.0, 0.0))
@@ -45,7 +52,7 @@ class OffboardCommandsScenario:
         await asyncio.sleep(10)
         await Drone.offboard.set_velocity_body(
             VelocityBodyYawspeed(0.3, 0.0, 0.0, 0.0))
-        await asyncio.sleep(10)
+        await asyncio.sleep(20)
         await Drone.offboard.set_velocity_body(
             VelocityBodyYawspeed(-0.3, 0.0, 0.0, 0.0))
         await asyncio.sleep(10)
@@ -61,13 +68,13 @@ class OffboardCommandsScenario:
         await asyncio.sleep(10)
         print("land")
         await Drone.action.land()
-        await asyncio.sleep(10)
+        await asyncio.sleep(20)
         print("kill")
         await Drone.action.kill()
 
     async def kill_on_takeoff_shake(self, StageHandler, SensorsHandler, Drone):
         while StageHandler.stage == 0:
-            if (abs(SensorsHandler.pitch) > 5 or abs(SensorsHandler.roll) > 5):
+            if (abs(SensorsHandler.pitch) > 8 or abs(SensorsHandler.roll) > 8):
                 print("TAKEOFF: shake! KILL")
                 await Drone.action.kill()
             await asyncio.sleep(0.05)

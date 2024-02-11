@@ -5,6 +5,7 @@ from mavsdk import System
 import pilot as pilot
 
 async def run():
+    print("INIT")
     Drone = System()
     await Drone.connect(system_address="udp://:14540")
     #await Drone.connect(system_address="serial:///dev/ttyACM0")

@@ -177,6 +177,13 @@ pip3 install --user aioconsole
 pip3 install --user opencv-python
 pip3 install --user ultralytics
 
+sudo pip3 install --user --upgrade pip
+sudo pip3 install --user mavsdk
+sudo pip3 install --user numpy
+sudo pip3 install --user aioconsole
+sudo pip3 install --user opencv-python
+sudo pip3 install --user ultralytics
+
 sudo chmod a+rw /dev/ttyACM0 # optional, tests only
 ```
 
@@ -185,16 +192,16 @@ sudo chmod a+rw /dev/ttyACM0 # optional, tests only
 sudo nano /lib/systemd/system/test.service
 ```
 ```
- [Unit]
- Description=Test Service
- After=multi-user.target
+[Unit]
+Description=Test Service
+After=multi-user.target
 
- [Service]
- Type=idle
- ExecStart=/usr/bin/python /home/px/test.py
+[Service]
+Type=idle
+ExecStart=/usr/bin/python /home/px/test.py
 
- [Install]
- WantedBy=multi-user.target
+[Install]
+WantedBy=multi-user.target
 ```
 
 Script

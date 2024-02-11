@@ -8,6 +8,8 @@ from test_scenarios.offboard_commands import OffboardCommandsScenario
 # 5: Test camera streaming
 # 6: Test capturing
 # 7: Test following
+# 8: Test validating
+
 
 class TestScenariosHandler:
     scenario = None

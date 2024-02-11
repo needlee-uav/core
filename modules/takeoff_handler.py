@@ -21,7 +21,8 @@ class TakeoffHandler:
 
         throttle = 0
         while SensorsHandler.velocity_down_m_s == 0:
-            if throttle < -0.7:
+            print(SensorsHandler.rel_alt)
+            if throttle < -0.9:
                 print("TAKEOFF: throttle to high! KILL")
                 await Drone.action.kill()
                 break

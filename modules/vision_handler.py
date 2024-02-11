@@ -102,7 +102,7 @@ class YoloHandler:
             #if not self.Target:
             
 
-            await asyncio.sleep(0.01)
+            await asyncio.sleep(0.05)
 
 class VisionHandler:
     target = None

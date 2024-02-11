@@ -63,6 +63,11 @@ class SimCameraHandler:
         )
         self.image = cv.cvtColor(np.array(img)[600:1000, 1500:1900], cv.COLOR_BGRA2RGB)
         return self.image
-            
-
     
+    async def view_camera_video(self):
+        while True:
+            frame = self.read_frame()
+            cv.imshow('detected', frame)
+            if chr(cv.waitKey(1)&255) == 'q':
+                break
+            await asyncio.sleep(0.05)
