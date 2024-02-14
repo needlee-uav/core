@@ -31,7 +31,7 @@ class Pilot:
         self.StageHandler.ServerHandler = self.WebSocketHandler
         # Modules
         self.TakeoffHandler = takeoff_handler.TakeoffHandler()
-        self.ServerHandler = server_handler.ServerHandler(server_config=self.Config["server"])
+        
         self.Logger = logger.Logger()
         
         #self.VisionHandler = vision_handler.VisionHandler(Config=self.Config)
