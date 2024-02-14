@@ -21,13 +21,14 @@ class StageHandler:
         RouteHandler.route = self.route_points
         RouteHandler.target_point = self.route_points[0]
         RouteHandler.home = self.home
+        self.ServerHandler = None
 
     
-    async def handle_stages(self, ServerHandler):
+    async def handle_stages(self):
         while True:
             if self.stage == None:
                 self.switch_stage(stage="PREARM")
-            elif ServerHandler.ready and self.stage == -1:
+            elif self.ServerHandler.ready and self.stage == -1:
                 self.switch_stage(stage="TAKEOFF")
             elif self.stage == 0 and self.in_air == True:
                 self.switch_stage(stage="ROUTE")

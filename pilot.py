@@ -25,16 +25,19 @@ class Pilot:
 
         self.SimCameraHandler = camera_handler.SimCameraHandler(Config=self.Config)
         self.SensorsHandler = sensors_handler.SensorsHandler()
-        self.WebSocketHandler = server_handler.WebSocketHandler(server_config=self.Config["server"], CameraHandler=self.SimCameraHandler, SensorsHandler=self.SensorsHandler)
+        self.RouteHandler = route_handler.RouteHandler()
+        self.StageHandler = stage_handler.StageHandler(Config=self.Config, RouteHandler=self.RouteHandler)
+        self.WebSocketHandler = server_handler.WebSocketHandler(server_config=self.Config["server"], CameraHandler=self.SimCameraHandler, SensorsHandler=self.SensorsHandler, StageHandler=self.StageHandler)
+        self.StageHandler.ServerHandler = self.WebSocketHandler
         # Modules
         self.TakeoffHandler = takeoff_handler.TakeoffHandler()
         self.ServerHandler = server_handler.ServerHandler(server_config=self.Config["server"])
         self.Logger = logger.Logger()
-        self.RouteHandler = route_handler.RouteHandler()
+        
         #self.VisionHandler = vision_handler.VisionHandler(Config=self.Config)
         #self.YoloHandler = vision_handler.YoloHandler(CameraHandler=self.CameraHandler)
         self.OffboardHandler = offboard_handler.OffboardHandler()
-        self.StageHandler = stage_handler.StageHandler(Config=self.Config, RouteHandler=self.RouteHandler)
+        
         
         #asyncio.ensure_future(self.YoloHandler.detect(CameraHandler=self.SimCameraHandler, StageHandler=self.StageHandler))
         #print("YOLO: detect OK")
@@ -67,11 +70,8 @@ class Pilot:
         print("PILOT: sensors OK")
         self.WebSocketHandler.start_websocket()
         print("PILOT: websocket start")
-        asyncio.ensure_future(self.StageHandler.handle_stages(ServerHandler=self.ServerHandler))
+        asyncio.ensure_future(self.StageHandler.handle_stages())
         print("PILOT: stage OK")
-        self.ready = True
-        self.ServerHandler.ready = True
-        print("PILOT: prearm OK")
         asyncio.ensure_future(self.RouteHandler.update_target_point(Drone=self.Drone, SensorsHandler=self.SensorsHandler, StageHandler=self.StageHandler))
         print("PILOT: route OK")
         
@@ -90,10 +90,8 @@ class Pilot:
         asyncio.ensure_future(self.SensorsHandler.update_pitch_roll(Drone=self.Drone))
         asyncio.ensure_future(self.SensorsHandler.update_vertical_velocity(Drone=self.Drone))
         print("PILOT: sensors OK")
-        asyncio.ensure_future(self.StageHandler.handle_stages(ServerHandler=self.ServerHandler))
+        asyncio.ensure_future(self.StageHandler.handle_stages())
         print("PILOT: stage OK")
-        asyncio.ensure_future(self.ServerHandler.handle_ready(SensorsHandler=self.SensorsHandler))
-        print("PILOT: prearm OK")
         asyncio.ensure_future(self.TestScenariosHandler.handle_scenarios(ServerHandler=self.ServerHandler, StageHandler=self.StageHandler, SensorsHandler=self.SensorsHandler, Drone=self.Drone))
 
         #asyncio.ensure_future(self.TakeoffHandler.soft_takeoff(StageHandler=self.StageHandler, SensorsHandler=self.SensorsHandler, Drone=self.Drone))

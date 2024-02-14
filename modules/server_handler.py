@@ -6,10 +6,14 @@ import cv2
 import base64
 
 class WebSocketHandler:
-    def __init__(self, server_config, CameraHandler, SensorsHandler):
+    def __init__(self, server_config, CameraHandler, SensorsHandler, StageHandler):
         self.CameraHandler = CameraHandler
         self.SensorsHandler = SensorsHandler
+        self.StageHandler = StageHandler
         self.server_config = server_config
+        self.connected = False
+        self.ready = False
+        self.test_mode = None
 
     def start_websocket(self):
         t = threading.Thread(target=self._handler)
@@ -21,8 +25,17 @@ class WebSocketHandler:
         @sio.event
         def connect():
             print("CONNECTED!")
-            sio.emit('move_map_to_vehicle', data={"lat": self.SensorsHandler.position["lat"], "lon": self.SensorsHandler.position["lon"], "alt": self.SensorsHandler.rel_alt, "h": self.SensorsHandler.heading})
-        
+            self.connected = True
+            while self.SensorsHandler.position["lat"] == 0.0:
+                time.sleep(1)
+            sio.emit('vehicle_sign_in', data={
+                "id": self.server_config["drone_id"],
+                "lat": self.SensorsHandler.position["lat"],
+                "lon": self.SensorsHandler.position["lon"],
+                "alt": self.SensorsHandler.rel_alt,
+                "h": self.SensorsHandler.heading
+            })
+            
             while True:
                 time.sleep(0.1)
                 img = cv2.resize(self.CameraHandler.image, (0,0), fx=0.5, fy=0.5)
@@ -34,7 +47,19 @@ class WebSocketHandler:
 
         @sio.event
         def disconnect():
+            self.connected = False
             print("DISCONNECTED")
+
+        @sio.on("update_config")
+        def update_config():
+            print("update_config")
+
+        @sio.on("ready")
+        def ready(data):
+            if data["test_mode"]:
+                self.test_mode = data["test_mode"]
+            self.ready = True
+            print("SERVER: ready")
 
         connected = False
         while not connected:
@@ -47,57 +72,4 @@ class WebSocketHandler:
                 print("Failed to establish initial connnection to server:", type(ex).__name__)
                 time.sleep(2)
 
-
-class ServerHandler:
-    def __init__(self, server_config):
-        self.url = server_config['url']
-        self.drone_id = server_config['drone_id']
-        self.connected = False
-        self.ready = False
-        self.test_mode = None
-
-    def make_handshake(self, data):
-        i = 0
-        while not self.connected and i < 5:
-            i+=1
-            url = f'{self.url}/handshake/{self.drone_id}/{data}'
-            res = requests.get(url).text
-            if res == 'success':
-                self.connected = True
-            time.sleep(1)
-        if self.connected:
-            print('SERVER: Vehicle connected')
-        else:
-            print('SERVER: Failed to connect')
-    
-    async def handle_ready(self, SensorsHandler):
-        lat = SensorsHandler.position['lat']
-        lon = SensorsHandler.position['lon']
-        data = f'{lat}_{lon}_{SensorsHandler.heading}_{SensorsHandler.rel_alt}'
-        self.make_handshake(data)
-        while not self.ready:
-            lat = SensorsHandler.position['lat']
-            lon = SensorsHandler.position['lon']
-            url = f'{self.url}/log/{self.drone_id}/{lat}_{lon}_{SensorsHandler.heading}_{SensorsHandler.rel_alt}'
-            res = requests.get(url).text
-            if "ready: 1" in res:
-                self.parse_ready_res(res)
-                print("SERVER: ready")
-                self.ready = True
-                return
-            await asyncio.sleep(1)
-
-    def parse_ready_res(self, res):
-        self.test_mode = res.split('; ')[1].split(': ')[1]
-        print(f'Test mode: {self.test_mode}')
-
-    async def handle_log(self, SensorsHandler):
-        while self.connected:
-            lat = SensorsHandler.position['lat']
-            lon = SensorsHandler.position['lon']
-            url = f'{self.url}/log/{self.drone_id}/{lat}_{lon}_{SensorsHandler.heading}_{SensorsHandler.rel_alt}'
-            res = requests.get(url).text
-            await asyncio.sleep(1)
-        # SOME EMERGENCY LOGIC
-        return
     
