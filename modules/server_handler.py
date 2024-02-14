@@ -25,7 +25,7 @@ class WebSocketHandler:
         
             while True:
                 time.sleep(0.1)
-                img = cv2.resize(self.CameraHandler.image, (0,0), fx=0.2, fy=0.2)
+                img = cv2.resize(self.CameraHandler.image, (0,0), fx=0.5, fy=0.5)
                 frame = cv2.imencode('.jpg', img)[1].tobytes()
                 frame = base64.encodebytes(frame).decode("utf-8")
                 frame = frame.replace("data:image/jpeg;base64,", "")
