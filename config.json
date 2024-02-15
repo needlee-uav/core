@@ -1,5 +1,5 @@
 {
-    "mode": "sim",
+    "mode": "test",
     "server": {
         
         "url": "http://0.0.0.0:8080",
@@ -10,6 +10,7 @@
         "target_img_path": "./gz_x500_sim/opencv_mss_screen/target.png" 
     },
     "camera_config": {
+        "sim_camera": true,
         "target_img_path": "" 
     },
     "mission": {

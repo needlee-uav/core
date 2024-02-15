@@ -52,7 +52,6 @@ class SimCameraHandler:
 
     def read_frame(self):
         monitor = self.sct.monitors[1]
-        
         screenShot = self.sct.grab(monitor)
         img = Image.frombytes(
             'RGB', 
@@ -67,7 +66,7 @@ class SimCameraHandler:
     async def view_camera_video(self):
         while True:
             frame = self.read_frame()
-            cv.imshow('detected', frame)
-            if chr(cv.waitKey(1)&255) == 'q':
-                break
-            await asyncio.sleep(0.05)
+            #cv.imshow('detected', frame)
+            #if chr(cv.waitKey(1)&255) == 'q':
+            #    break
+            await asyncio.sleep(0.1)
