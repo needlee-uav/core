@@ -177,12 +177,14 @@ pip3 install --user aioconsole
 pip3 install --user opencv-python
 pip3 install --user ultralytics
 
-sudo pip3 install --user --upgrade pip
-sudo pip3 install --user mavsdk
-sudo pip3 install --user numpy
-sudo pip3 install --user aioconsole
-sudo pip3 install --user opencv-python
-sudo pip3 install --user ultralytics
+pip3 install --user Flask
+pip3 install --user eventlet
+pip3 install --user Flask-socketio
+pip3 install --user python-engineio
+pip3 install --user python-socketio
+pip3 install --user simple-websocket
+pip3 install --user gunicorn
+pip3 install --user python-socketio[client]
 
 sudo chmod a+rw /dev/ttyACM0 # optional, tests only
 ```

@@ -1,7 +1,6 @@
 {
     "mode": "test",
     "server": {
-        
         "url": "http://0.0.0.0:8080",
         "drone_id": "UAV-1234"
     },
@@ -11,7 +10,16 @@
     },
     "camera_config": {
         "sim_camera": true,
-        "target_img_path": "" 
+        "target_img_path": ""
+    },
+    "camera": {
+        "sim_mode": true,
+        "camera_config": {
+            "target_path": "tcp://127.0.0.1:8888"
+        },
+        "sim_camera_config": {
+            
+        }
     },
     "mission": {
         "home": {

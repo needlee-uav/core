@@ -24,11 +24,14 @@ class Pilot:
 
         print(f'MODE: {self.Config["mode"]}')
         # Modules
-        self.SimCameraHandler = camera_handler.SimCameraHandler(Config=self.Config)
+        if self.Config["camera"]["sim_mode"]:
+            self.CameraHandler = camera_handler.SimCameraHandler(Config=self.Config)
+        else:
+            self.CameraHandler = camera_handler.CameraHandler(Config=self.Config)
         self.SensorsHandler = sensors_handler.SensorsHandler()
         self.RouteHandler = route_handler.RouteHandler()
         self.StageHandler = stage_handler.StageHandler(Config=self.Config, RouteHandler=self.RouteHandler)
-        self.WebSocketHandler = server_handler.WebSocketHandler(server_config=self.Config["server"], CameraHandler=self.SimCameraHandler, SensorsHandler=self.SensorsHandler, StageHandler=self.StageHandler)
+        self.WebSocketHandler = server_handler.WebSocketHandler(server_config=self.Config["server"], CameraHandler=self.CameraHandler, SensorsHandler=self.SensorsHandler, StageHandler=self.StageHandler)
         self.StageHandler.ServerHandler = self.WebSocketHandler
         self.Logger = logger.Logger()
         self.OffboardHandler = offboard_handler.OffboardHandler()
@@ -36,7 +39,7 @@ class Pilot:
         print("PILOT: modules OK")
         
         # Async
-        asyncio.ensure_future(self.SimCameraHandler.view_camera_video())
+        asyncio.ensure_future(self.CameraHandler.view_camera_video())
         asyncio.ensure_future(self.Logger.log(SensorsHandler=self.SensorsHandler))
         print("PILOT: log OK")
         asyncio.ensure_future(self.SensorsHandler.update_position(Drone=self.Drone))
@@ -62,55 +65,55 @@ class Pilot:
             asyncio.ensure_future(self.TakeoffHandler.soft_takeoff(StageHandler=self.StageHandler, SensorsHandler=self.SensorsHandler, Drone=self.Drone))
             print("PILOT: takeoff OK")
     
-    def run_async_sim(self):
-        asyncio.ensure_future(self.SimCameraHandler.view_camera_video())
-        #asyncio.ensure_future(self.YoloHandler.detect(CameraHandler=self.SimCameraHandler, StageHandler=self.StageHandler))
-        #print("YOLO: detect OK")
-        asyncio.ensure_future(self.Logger.log(SensorsHandler=self.SensorsHandler))
-        print("PILOT: log OK")
-        asyncio.ensure_future(self.SensorsHandler.update_position(Drone=self.Drone))
-        asyncio.ensure_future(self.SensorsHandler.update_heading(Drone=self.Drone))
-        asyncio.ensure_future(self.SensorsHandler.update_pitch_roll(Drone=self.Drone))
-        asyncio.ensure_future(self.SensorsHandler.update_vertical_velocity(Drone=self.Drone))
-        print("PILOT: sensors OK")
-        self.WebSocketHandler.start_websocket()
-        print("PILOT: websocket start")
-        asyncio.ensure_future(self.StageHandler.handle_stages())
-        print("PILOT: stage OK")
-        asyncio.ensure_future(self.RouteHandler.update_target_point(Drone=self.Drone, SensorsHandler=self.SensorsHandler, StageHandler=self.StageHandler))
-        print("PILOT: route OK")
+    # def run_async_sim(self):
+    #     asyncio.ensure_future(self.CameraHandler.view_camera_video())
+    #     #asyncio.ensure_future(self.YoloHandler.detect(CameraHandler=self.SimCameraHandler, StageHandler=self.StageHandler))
+    #     #print("YOLO: detect OK")
+    #     asyncio.ensure_future(self.Logger.log(SensorsHandler=self.SensorsHandler))
+    #     print("PILOT: log OK")
+    #     asyncio.ensure_future(self.SensorsHandler.update_position(Drone=self.Drone))
+    #     asyncio.ensure_future(self.SensorsHandler.update_heading(Drone=self.Drone))
+    #     asyncio.ensure_future(self.SensorsHandler.update_pitch_roll(Drone=self.Drone))
+    #     asyncio.ensure_future(self.SensorsHandler.update_vertical_velocity(Drone=self.Drone))
+    #     print("PILOT: sensors OK")
+    #     self.WebSocketHandler.start_websocket()
+    #     print("PILOT: websocket start")
+    #     asyncio.ensure_future(self.StageHandler.handle_stages())
+    #     print("PILOT: stage OK")
+    #     asyncio.ensure_future(self.RouteHandler.update_target_point(Drone=self.Drone, SensorsHandler=self.SensorsHandler, StageHandler=self.StageHandler))
+    #     print("PILOT: route OK")
         
-        #asyncio.ensure_future(self.VisionHandler.process_image(CameraHandler=self.CameraHandler, StageHandler=self.StageHandler))
-        #print("PILOT: vision OK")
-        #asyncio.ensure_future(self.OffboardHandler.handle_offboard(StageHandler=self.StageHandler, VisionHandler=self.VisionHandler, SensorsHandler=self.SensorsHandler, Drone=self.Drone))
-        #print("PILOT: offboard OK")
-        asyncio.ensure_future(self.TakeoffHandler.soft_takeoff(StageHandler=self.StageHandler, SensorsHandler=self.SensorsHandler, Drone=self.Drone))
-        print("PILOT: takeoff OK")
+    #     #asyncio.ensure_future(self.VisionHandler.process_image(CameraHandler=self.CameraHandler, StageHandler=self.StageHandler))
+    #     #print("PILOT: vision OK")
+    #     #asyncio.ensure_future(self.OffboardHandler.handle_offboard(StageHandler=self.StageHandler, VisionHandler=self.VisionHandler, SensorsHandler=self.SensorsHandler, Drone=self.Drone))
+    #     #print("PILOT: offboard OK")
+    #     asyncio.ensure_future(self.TakeoffHandler.soft_takeoff(StageHandler=self.StageHandler, SensorsHandler=self.SensorsHandler, Drone=self.Drone))
+    #     print("PILOT: takeoff OK")
 
-    def run_async_test(self):
-        asyncio.ensure_future(self.Logger.log(SensorsHandler=self.SensorsHandler))
-        print("PILOT: log OK")
-        asyncio.ensure_future(self.SensorsHandler.update_position(Drone=self.Drone))
-        asyncio.ensure_future(self.SensorsHandler.update_heading(Drone=self.Drone))
-        asyncio.ensure_future(self.SensorsHandler.update_pitch_roll(Drone=self.Drone))
-        asyncio.ensure_future(self.SensorsHandler.update_vertical_velocity(Drone=self.Drone))
-        print("PILOT: sensors OK")
-        asyncio.ensure_future(self.StageHandler.handle_stages())
-        print("PILOT: stage OK")
-        asyncio.ensure_future(self.TestScenariosHandler.handle_scenarios(ServerHandler=self.ServerHandler, StageHandler=self.StageHandler, SensorsHandler=self.SensorsHandler, Drone=self.Drone))
+    # def run_async_test(self):
+    #     asyncio.ensure_future(self.Logger.log(SensorsHandler=self.SensorsHandler))
+    #     print("PILOT: log OK")
+    #     asyncio.ensure_future(self.SensorsHandler.update_position(Drone=self.Drone))
+    #     asyncio.ensure_future(self.SensorsHandler.update_heading(Drone=self.Drone))
+    #     asyncio.ensure_future(self.SensorsHandler.update_pitch_roll(Drone=self.Drone))
+    #     asyncio.ensure_future(self.SensorsHandler.update_vertical_velocity(Drone=self.Drone))
+    #     print("PILOT: sensors OK")
+    #     asyncio.ensure_future(self.StageHandler.handle_stages())
+    #     print("PILOT: stage OK")
+    #     asyncio.ensure_future(self.TestScenariosHandler.handle_scenarios(ServerHandler=self.ServerHandler, StageHandler=self.StageHandler, SensorsHandler=self.SensorsHandler, Drone=self.Drone))
 
-        #asyncio.ensure_future(self.TakeoffHandler.soft_takeoff(StageHandler=self.StageHandler, SensorsHandler=self.SensorsHandler, Drone=self.Drone))
-        #print("PILOT: takeoff waiting OK")
+    #     #asyncio.ensure_future(self.TakeoffHandler.soft_takeoff(StageHandler=self.StageHandler, SensorsHandler=self.SensorsHandler, Drone=self.Drone))
+    #     #print("PILOT: takeoff waiting OK")
         
-        #asyncio.ensure_future(self.CameraTestScreen.show_frame(CameraHandler=self.CameraHandler))
+    #     #asyncio.ensure_future(self.CameraTestScreen.show_frame(CameraHandler=self.CameraHandler))
 
-        #print("PILOT: camera OK")
-        #asyncio.ensure_future(self.VisionHandler.process_image(CameraHandler=self.CameraHandler, StageHandler=self.StageHandler))
-        #print("PILOT: vision OK")
-        #asyncio.ensure_future(self.OffboardHandler.handle_offboard(StageHandler=self.StageHandler, VisionHandler=self.VisionHandler, SensorsHandler=self.SensorsHandler, Drone=self.Drone))
-        #print("PILOT: offboard OK")
+    #     #print("PILOT: camera OK")
+    #     #asyncio.ensure_future(self.VisionHandler.process_image(CameraHandler=self.CameraHandler, StageHandler=self.StageHandler))
+    #     #print("PILOT: vision OK")
+    #     #asyncio.ensure_future(self.OffboardHandler.handle_offboard(StageHandler=self.StageHandler, VisionHandler=self.VisionHandler, SensorsHandler=self.SensorsHandler, Drone=self.Drone))
+    #     #print("PILOT: offboard OK")
 
-    def run_async_main(self):
-        asyncio.ensure_future(self.YoloHandler.detect(CameraHandler=self.CameraHandler))
-        print("YOLO: detect OK")
-        pass
+    # def run_async_main(self):
+    #     asyncio.ensure_future(self.YoloHandler.detect(CameraHandler=self.CameraHandler))
+    #     print("YOLO: detect OK")
+    #     pass

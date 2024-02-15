@@ -5,7 +5,8 @@ from PIL import Image
 # sudo libcamera-vid -n -t 0 --width 320 --height 320 --framerate 10 --mode 320:320:10 --inline --listen -o tcp://127.0.0.1:8888
 class CameraHandler:
     def __init__(self, Config) -> None:
-        self.cap = cv.VideoCapture('tcp://127.0.0.1:8888')
+        self.image = None
+        self.cap = cv.VideoCapture(Config["camera_config"]["target_path"])
         self.cap.set(cv.CAP_PROP_FPS, 10)
         self.cap.set(cv.CAP_PROP_BUFFERSIZE, 0)
         self.q = queue.Queue()
@@ -25,7 +26,13 @@ class CameraHandler:
             self.q.put(frame)
     
     def read_frame(self):
-        return self.q.get()
+        self.image = self.q.get()
+        return self.image
+    
+    async def view_camera_video(self):
+        while True:
+            self.read_frame()
+            await asyncio.sleep(0.1)
 
 class SimCameraHandler:
     config = {}
@@ -65,8 +72,5 @@ class SimCameraHandler:
     
     async def view_camera_video(self):
         while True:
-            frame = self.read_frame()
-            #cv.imshow('detected', frame)
-            #if chr(cv.waitKey(1)&255) == 'q':
-            #    break
+            self.read_frame()
             await asyncio.sleep(0.1)
