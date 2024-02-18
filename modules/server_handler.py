@@ -42,7 +42,18 @@ class WebSocketHandler:
                 frame = cv2.imencode('.jpg', img)[1].tobytes()
                 frame = base64.encodebytes(frame).decode("utf-8")
                 frame = frame.replace("data:image/jpeg;base64,", "")
-                sio.emit('stream', data={"frame": frame, "log": {"lat": self.SensorsHandler.position["lat"], "lon": self.SensorsHandler.position["lon"], "alt": self.SensorsHandler.rel_alt, "h": self.SensorsHandler.heading}})
+                sio.emit('stream', data={
+                    "shape": {"w": 320, "h": 320}, 
+                    "frame": frame, 
+                    "log": {
+                        "pitch": self.SensorsHandler.pitch, 
+                        "roll": self.SensorsHandler.roll, 
+                        "lat": self.SensorsHandler.position["lat"], 
+                        "lon": self.SensorsHandler.position["lon"], 
+                        "alt": self.SensorsHandler.rel_alt, 
+                        "h": self.SensorsHandler.heading
+                    }
+                })
                 time.sleep(0)
 
         @sio.event
@@ -56,6 +67,9 @@ class WebSocketHandler:
 
         @sio.on("ready")
         def ready(data):
+            print("=============")
+            print(data)
+            print("=============")
             if data["test_mode"]:
                 self.test_mode = data["test_mode"]
             self.ready = True

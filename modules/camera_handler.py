@@ -49,7 +49,7 @@ class SimCameraHandler:
             (screenShot.width, screenShot.height), 
             screenShot.rgb, 
         )
-        self.image = np.array(img)[600:1000, 1500:1900]
+        self.image = np.array(img)[640:960, 1540:1860]
 
     def set_config(self, Config):
         if (Config["sim_mode"]): 
