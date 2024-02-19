@@ -14,6 +14,8 @@ class WebSocketHandler:
         self.connected = False
         self.ready = False
         self.test_mode = None
+        self.home = None
+        self.route = None
 
     def start_websocket(self):
         t = threading.Thread(target=self._handler)
@@ -72,6 +74,8 @@ class WebSocketHandler:
             print("=============")
             if data["test_mode"]:
                 self.test_mode = data["test_mode"]
+                self.home = data["home"]
+                self.route = data["route"]
             self.ready = True
             print("SERVER: ready")
 

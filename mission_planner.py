@@ -3,6 +3,9 @@ from math import sqrt
 from math import dist
 import helpers
 
+def build_raw_route(start_pos, points):
+    points = list(map(lambda n: (n[0], n[1]), points))
+    return points + [(start_pos[0], start_pos[1])]
 
 def build_mission(start_pos, target_area, offset):
     area = build_area_points(start_pos, target_area)

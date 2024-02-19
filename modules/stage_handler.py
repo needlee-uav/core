@@ -16,6 +16,7 @@ class StageHandler:
 
     def __init__(self, Config, RouteHandler):
         config = Config["mission"]
+        self.RouteHandler = RouteHandler
         self.home = config["home"]
         self.route_points = mission_planner.build_mission(self.home, config["target_area"], config["offset"])
         RouteHandler.route = self.route_points
@@ -23,7 +24,16 @@ class StageHandler:
         RouteHandler.home = self.home
         self.ServerHandler = None
 
-    
+    def rebuild_route(self, Config): 
+        self.home= {
+            "lat": Config["home"][0],
+            "lon": Config["home"][1]
+        }
+        self.route_points = mission_planner.build_raw_route(Config["home"], Config["route"])
+        self.RouteHandler.route = self.route_points
+        self.RouteHandler.target_point = self.route_points[0]
+        self.RouteHandler.home = self.home
+
     async def handle_stages(self):
         while True:
             if self.stage == None:

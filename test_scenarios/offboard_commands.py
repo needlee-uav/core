@@ -6,7 +6,7 @@ class OffboardCommandsScenario:
     def __init__(self):
         pass
 
-    async def run(self, StageHandler, SensorsHandler, Drone):
+    async def run(self, StageHandler, SensorsHandler, Drone, TakeoffHandler):
         print("TEST: Soft takeoff scenario")
         while StageHandler.stage != 0:
             await asyncio.sleep(0.1)

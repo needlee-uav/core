@@ -53,15 +53,15 @@ class Pilot:
         print("PILOT: stage OK")
         asyncio.ensure_future(self.RouteHandler.update_target_point(Drone=self.Drone, SensorsHandler=self.SensorsHandler, StageHandler=self.StageHandler))
         print("PILOT: route OK")
+        self.TakeoffHandler = takeoff_handler.TakeoffHandler()
 
         if self.Config["mode"] == "main":
             pass
         elif self.Config["mode"] == "test":
             self.TestScenariosHandler = test_scenarios_handler.TestScenariosHandler()
-            asyncio.ensure_future(self.TestScenariosHandler.handle_scenarios(ServerHandler=self.WebSocketHandler, StageHandler=self.StageHandler, SensorsHandler=self.SensorsHandler, Drone=self.Drone))
+            asyncio.ensure_future(self.TestScenariosHandler.handle_scenarios(ServerHandler=self.WebSocketHandler, StageHandler=self.StageHandler, SensorsHandler=self.SensorsHandler, Drone=self.Drone, TakeoffHandler=self.TakeoffHandler))
             print("PILOT: test OK")
         elif self.Config["mode"] == "sim":
-            self.TakeoffHandler = takeoff_handler.TakeoffHandler()
             asyncio.ensure_future(self.TakeoffHandler.soft_takeoff(StageHandler=self.StageHandler, SensorsHandler=self.SensorsHandler, Drone=self.Drone))
             print("PILOT: takeoff OK")
     
