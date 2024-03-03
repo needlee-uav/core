@@ -5,6 +5,9 @@ class TakeoffHandler:
     in_air = False
     def __init__(self):
         pass
+    
+    async def land(self, Drone):
+        pass
 
     async def soft_takeoff(self, StageHandler, SensorsHandler, Drone):
         while StageHandler.stage != 0:
