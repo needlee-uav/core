@@ -44,8 +44,131 @@ pip3 install ultralytics
 git clone https://github.com/steven-kollo/t-needle
 ```
 
+============================================
 
+## Setup Jetson Nano environment on Debian Ubuntu 20
+###
+Download required packages
+```
+sudo apt install minicom
+sudo apt install net-tools
+sudo apt update
+sudo apt upgrade
+```
+Plug SIM7600
+```
+sudo minicom -D /dev/ttyUSB2
+```
+Check SIM7600 connection (3 OK responses required)
+```
+ATE1
+AT+CGDCONT=1,"IP","super"
+AT+COPS?
+```
+Send the following commands through minicom and wait for the module to restart
+```
+ATE1
+AT+CUSBPIDSWITCH=9011,1,1
+```
+Run the ifconfig command to see if a USB0 card is identified
+```
+ifconfig
+```
+Route to SIM7600 & disable wifi
+```
+sudo dhclient -v usb0
+sudo ifconfig wlan0 down
+ping google.com
+```
+Troubleshooting:
 
+https://www.twilio.com/docs/iot/supersim/getting-started-super-sim-raspberry-pi-waveshare-4g-hat
+
+https://www.twilio.com/docs/iot/supersim/cellular-modem-knowledge-base/simcom-supersim#sim7600-cat-4
+
+https://www.spotpear.com/index.php/index/study/detail/id/234.html
+
+### Python 3.12
+https://phoenixnap.com/kb/how-to-install-python-3-ubuntu
+
+```
+sudo apt update
+sudo apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev wget
+
+cd /tmp
+wget https://www.python.org/ftp/python/3.12.1/Python-3.12.1.tgz
+tar -xf Python-3.12.1.tgz
+cd Python-3.12.1
+./configure --enable-optimizations
+```
+Build takes 20-30 minutes
+```
+sudo make install
+python3 --version
+```
+### Setup Needlee Core
+```
+sudo apt update && sudo apt install python3-pip
+pip3 install --user --upgrade pip
+pip3 install --user mavsdk
+pip3 install --user numpy
+pip3 install --user aioconsole
+pip3 install --user opencv-contrib-python==4.5.5.62
+pip3 install --user ultralytics
+
+sudo chmod a+rw /dev/ttyACM0 # optional, tests only
+```
+
+### Setup service
+```
+sudo nano /lib/systemd/system/test.service
+```
+```
+ [Unit]
+ Description=Test Service
+ After=multi-user.target
+
+ [Service]
+ Type=idle
+ ExecStart=/usr/bin/python /home/px/test.py
+
+ [Install]
+ WantedBy=multi-user.target
+```
+
+Script
+```
+import requests
+import time
+
+def handshake():
+    data='42.134_43.123_123_8'sudo pip3 install mavproxy (optional)
+sudo apt remove modemmanager (optional)
+        try:
+            i+=1
+            url=f'https://needlee-server-4ohicpymya-uc.a.run.app/handshake/UAV-1234/{data}'
+            res=requests.get(url).text
+            print(res)
+            if res=='success':
+                connected=True
+                print('success')
+        except:
+            print('internet error')
+        time.sleep(1)
+
+handshake()
+```
+
+```
+sudo chmod 644 /lib/systemd/system/test.service
+sudo systemctl daemon-reload
+sudo systemctl enable sample.service
+sudo reboot
+```
+
+```
+systemctl status test.service
+```
 ============================================
 
 ## Setup Raspberry Pi environment on Debian Ubuntu 22
