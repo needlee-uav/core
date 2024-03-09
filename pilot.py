@@ -1,17 +1,16 @@
 import asyncio
 import helpers as helpers
 import json
-import time
 import modules.route_handler as route_handler
 import modules.sensors_handler as sensors_handler
 import modules.camera_handler as camera_handler
-#import modules.vision_handler as vision_handler
 import modules.offboard_handler as offboard_handler
 import modules.stage_handler as stage_handler
 import modules.logger as logger
 import modules.server_handler as server_handler
 import modules.takeoff_handler as takeoff_handler
 import test_scenarios.test_scenarios_handler as test_scenarios_handler
+#import modules.vision_handler as vision_handler
 
 class Pilot:
     
@@ -32,6 +31,7 @@ class Pilot:
         self.StageHandler.ServerHandler = self.WebSocketHandler
         self.Logger = logger.Logger()
         self.OffboardHandler = offboard_handler.OffboardHandler()
+        self.TakeoffHandler = takeoff_handler.TakeoffHandler()
         #self.YoloHandler = vision_handler.YoloHandler(CameraHandler=self.CameraHandler)
         print("PILOT: modules OK")
         
@@ -50,8 +50,7 @@ class Pilot:
         print("PILOT: stage OK")
         asyncio.ensure_future(self.RouteHandler.update_target_point(Drone=self.Drone, SensorsHandler=self.SensorsHandler, StageHandler=self.StageHandler))
         print("PILOT: route OK")
-        self.TakeoffHandler = takeoff_handler.TakeoffHandler()
-
+        
         if self.Config["mode"] == "main":
             pass
         elif self.Config["mode"] == "test":
