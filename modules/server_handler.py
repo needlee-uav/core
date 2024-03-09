@@ -6,7 +6,8 @@ import cv2
 import base64
 
 class WebSocketHandler:
-    def __init__(self, server_config, CameraHandler, SensorsHandler, StageHandler):
+    def __init__(self, server_config, CameraHandler, SensorsHandler, StageHandler, Pilot):
+        self.Pilot = Pilot
         self.CameraHandler = CameraHandler
         self.SensorsHandler = SensorsHandler
         self.StageHandler = StageHandler
@@ -16,6 +17,7 @@ class WebSocketHandler:
         self.test_mode = None
         self.home = None
         self.route = None
+        self.enable_camera = None
 
     def start_websocket(self):
         t = threading.Thread(target=self._handler)
@@ -37,7 +39,6 @@ class WebSocketHandler:
                 "alt": self.SensorsHandler.rel_alt,
                 "h": self.SensorsHandler.heading
             })
-            
             while True:
                 time.sleep(0.1)
                 img = cv2.resize(self.CameraHandler.image, (0,0), fx=0.5, fy=0.5)
@@ -76,6 +77,8 @@ class WebSocketHandler:
                 self.test_mode = data["test_mode"]
                 self.home = data["home"]
                 self.route = data["route"]
+                self.enable_camera = data["enable_camera"]
+                self.Pilot.enable_camera = self.enable_camera
             self.ready = True
             print("SERVER: ready")
 

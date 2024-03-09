@@ -21,17 +21,14 @@ class Pilot:
         self.Config = json.load(config_file)
         config_file.close()
         self.ready = False
-
+        self.enable_camera = False
         print(f'MODE: {self.Config["mode"]}')
-        # Modules
-        if self.Config["camera"]["sim_mode"]:
-            self.CameraHandler = camera_handler.SimCameraHandler(Config=self.Config)
-        else:
-            self.CameraHandler = camera_handler.CameraHandler(Config=self.Config)
+
+        self.CameraHandler = camera_handler.CameraHandler(Config=self.Config, Pilot=self)
         self.SensorsHandler = sensors_handler.SensorsHandler()
         self.RouteHandler = route_handler.RouteHandler()
         self.StageHandler = stage_handler.StageHandler(Config=self.Config, RouteHandler=self.RouteHandler)
-        self.WebSocketHandler = server_handler.WebSocketHandler(server_config=self.Config["server"], CameraHandler=self.CameraHandler, SensorsHandler=self.SensorsHandler, StageHandler=self.StageHandler)
+        self.WebSocketHandler = server_handler.WebSocketHandler(server_config=self.Config["server"], CameraHandler=self.CameraHandler, SensorsHandler=self.SensorsHandler, StageHandler=self.StageHandler, Pilot=self)
         self.StageHandler.ServerHandler = self.WebSocketHandler
         self.Logger = logger.Logger()
         self.OffboardHandler = offboard_handler.OffboardHandler()
