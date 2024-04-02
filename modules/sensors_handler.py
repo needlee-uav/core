@@ -12,7 +12,7 @@ class SensorsHandler:
             velocity_down_m_s = round(velocity.down_m_s, 1)
             if self.velocity_down_m_s != velocity_down_m_s:
                 self.velocity_down_m_s = velocity_down_m_s
-            
+
     async def update_pitch_roll(self, Drone):
         async for att_e in Drone.telemetry.attitude_euler():
             pitch = round(att_e.pitch_deg, 0)
@@ -33,7 +33,6 @@ class SensorsHandler:
                 self.position["lon"] = lon
 
     async def update_heading(self, Drone):
-        async for heading in Drone.telemetry.heading():            
+        async for heading in Drone.telemetry.heading():
             if round(heading.heading_deg, 1) != self.heading:
                 self.heading = round(heading.heading_deg, 1)
-                

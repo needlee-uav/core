@@ -13,6 +13,7 @@ from test_scenarios.route_flight import RouteFlightScenario
 
 
 class TestScenariosHandler:
+    Logger = None
     scenario = None
     def __init__(self):
         self.scenarios = [
@@ -28,4 +29,4 @@ class TestScenariosHandler:
         self.scenario = self.scenarios[int(ServerHandler.test_mode)]
         if ServerHandler.route != None:
             StageHandler.rebuild_route({"home": ServerHandler.home, "route": ServerHandler.route})
-        await self.scenario.run(StageHandler=StageHandler, SensorsHandler=SensorsHandler, Drone=Drone, TakeoffHandler=TakeoffHandler)
+        await self.scenario.run(Logger=self.Logger, StageHandler=StageHandler, SensorsHandler=SensorsHandler, Drone=Drone, TakeoffHandler=TakeoffHandler)

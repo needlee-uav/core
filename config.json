@@ -1,12 +1,12 @@
 {
     "mode": "test",
     "server": {
-        "url": "https://seahorse-app-g5t33.ondigitalocean.app/console",
+        "url": "http://0.0.0.0:8080/console",
         "drone_id": "UAV-1234"
     },
     "sim_mode": 1,
     "sim_camera_config": {
-        "target_img_path": "./gz_x500_sim/opencv_mss_screen/target.png" 
+        "target_img_path": "./gz_x500_sim/opencv_mss_screen/target.png"
     },
     "camera_config": {
         "sim_camera": true,
@@ -18,7 +18,7 @@
             "target_path": "tcp://127.0.0.1:8888"
         },
         "sim_camera_config": {
-            
+
         }
     },
     "mission": {

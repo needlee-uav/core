@@ -1,6 +1,7 @@
 import asyncio
 import mission_planner
 class StageHandler:
+    Logger = None
     target_detected = False
     target_captured = False
     offboard_mode = False
@@ -11,12 +12,13 @@ class StageHandler:
         "TAKEOFF": 0,
         "ROUTE": 1,
         "CAPTURE": 2,
-        "FAILSAFE": 3
+        "EMERGENCY": 3
     }
 
-    def __init__(self, Config, RouteHandler):
+    def __init__(self, Config, RouteHandler, EmergencyHandler):
         config = Config["mission"]
         self.RouteHandler = RouteHandler
+        self.EmergencyHandler = EmergencyHandler
         self.home = config["home"]
         self.route_points = mission_planner.build_mission(self.home, config["target_area"], config["offset"])
         RouteHandler.route = self.route_points
@@ -24,7 +26,7 @@ class StageHandler:
         RouteHandler.home = self.home
         self.ServerHandler = None
 
-    def rebuild_route(self, Config): 
+    def rebuild_route(self, Config):
         self.home= {
             "lat": Config["home"][0],
             "lon": Config["home"][1]
@@ -36,7 +38,11 @@ class StageHandler:
 
     async def handle_stages(self):
         while True:
-            if self.stage == None:
+            if self.EmergencyHandler.emergency:
+                self.switch_stage(stage="EMERGENCY")
+                print(self.stage)
+                return
+            elif self.stage == None:
                 self.switch_stage(stage="PREARM")
             elif self.ServerHandler.ready and self.stage == -1:
                 self.switch_stage(stage="TAKEOFF")
@@ -49,10 +55,8 @@ class StageHandler:
             elif (self.target_detected and self.stage == 1):
                self.switch_stage(stage="CAPTURE")
             await asyncio.sleep(0.05)
-    
+
     def switch_stage(self, stage):
         if stage in self.stages:
             self.stage = self.stages[stage]
-            print(f"STAGE: {stage}")
-    
-                   
+            self.Logger.log_debug(f"STAGE: {stage}")
