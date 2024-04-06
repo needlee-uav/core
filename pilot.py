@@ -143,5 +143,5 @@ class Pilot:
             self.Logger.log_debug("PILOT: takeoff OK")
     async def monitor(self):
         while True:
-            print(self.params.stage)
+            # print(self.params.stage)
             await asyncio.sleep(1)

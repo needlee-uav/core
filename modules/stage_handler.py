@@ -2,20 +2,6 @@ import asyncio
 import mission_planner
 import time
 class StageHandler:
-    # Logger = None
-    # target_detected = False
-    # target_captured = False
-    # offboard_mode = False
-    # in_air = False
-    # stage = None
-    stages = {
-        "PREARM": -1,
-        "TAKEOFF": 0,
-        "ROUTE": 1,
-        "CAPTURE": 2,
-        "EMERGENCY": 3
-    }
-
     def __init__(self, Pilot):
         self.Pilot = Pilot
         self.stage = Pilot.params.stage
@@ -26,7 +12,7 @@ class StageHandler:
         while True:
             if self.stage.emergency:
                 self.switch_stage(stage="EMERGENCY")
-                return
+                break
             elif self.stage.ready and self.stage.name == "PREARM":
                 self.switch_stage(stage="TAKEOFF")
             elif self.stage.name == "TAKEOFF" and self.stage.in_air == True:
@@ -42,13 +28,3 @@ class StageHandler:
     def switch_stage(self, stage):
         self.stage.name = stage
         self.Pilot.Logger.log_debug(f"STAGE: {stage}")
-
-    # def rebuild_route(self, Config):
-    #     self.home= {
-    #         "lat": Config["home"][0],
-    #         "lon": Config["home"][1]
-    #     }
-    #     self.route_points = mission_planner.build_raw_route(Config["home"], Config["route"])
-    #     self.RouteHandler.route = self.route_points
-    #     self.RouteHandler.target_point = self.route_points[0]
-    #     self.RouteHandler.home = self.home
