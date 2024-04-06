@@ -22,7 +22,6 @@ class TakeoffHandler:
         while self.Pilot.params.stage.name != "TAKEOFF":
             await asyncio.sleep(0.1)
         await self.arm_on_takeoff()
-
         down_m_s = 0
         while down_m_s > -0.7 and not self.Pilot.params.stage.in_air:
             down_m_s = round(down_m_s - 0.1, 1)
@@ -30,7 +29,6 @@ class TakeoffHandler:
                 self.Pilot.Logger.log_debug("TAKEOFF: velocity to high! Land")
                 await self.Pilot.Drone.action.land()
                 break
-
             await self.Pilot.Drone.offboard.set_velocity_body(
                 VelocityBodyYawspeed(0.0, 0.0, down_m_s, 0.0))
             self.Pilot.Logger.log_debug(f"TAKEOFF: velocity {abs(down_m_s)}")
@@ -41,7 +39,6 @@ class TakeoffHandler:
             await asyncio.sleep(0.1)
         while self.Pilot.params.sensors.position.alt < 1.0:
             await asyncio.sleep(0.2)
-
         self.Pilot.params.stage.in_air = True
         self.Pilot.Logger.log_debug(f"TAKEOFF: 1 meter reached at velocity {self.Pilot.params.sensors.velocity_down_m_s}")
         await asyncio.sleep(0.2)

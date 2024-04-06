@@ -9,7 +9,7 @@ class TestVideoCapture:
         t = threading.Thread(target=self._reader)
         t.daemon = True
         t.start()
-    
+
     def _reader(self):
         while True:
             ret, frame = self.cap.read()
@@ -20,10 +20,10 @@ class TestVideoCapture:
                 except queue.Empty:
                     pass
             self.q.put(frame)
-    
+
     def read_frame(self):
         return self.q.get()
-    
+
 async def show(cap):
     while True:
         frame = cap.read_frame()

@@ -1,12 +1,8 @@
-import requests
-import asyncio
-import socketio, time, datetime
+import socketio, time
 import threading
 import cv2
 import base64
 
-
-import numpy as np
 class ServerHandler:
     def __init__(self, Pilot):
         self.Pilot = Pilot
@@ -83,12 +79,9 @@ class ServerHandler:
             self.Pilot.Logger.log_debug(data)
             self.Pilot.params.route.route = data["route"]
             self.Pilot.params.server.enable_camera = True
-
             if data["test_mode"]:
-                self.Pilot.params.stage.test.run = True
-                self.Pilot.params.stage.test.name = data["test_mode"]
+                self.Pilot.params.stage.test.id = data["test_mode"]
                 self.Pilot.params.server.enable_camera = data["enable_camera"]
-
             self.Pilot.params.stage.ready = True
 
         while not self.Pilot.params.server.connected:

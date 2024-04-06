@@ -12,7 +12,6 @@ class SensorsHandler:
         asyncio.ensure_future(self.update_pitch_roll())
         asyncio.ensure_future(self.update_vertical_velocity())
 
-
     async def ready(self):
         while self.params.position.lat == 0.0:
             await asyncio.sleep(1)

@@ -47,7 +47,7 @@ def reorder_target_area(target_area):
 
     target_area[1] = target_area[2]
     target_area[2] = diagonal_point
-    target_area[3] = nearest_point 
+    target_area[3] = nearest_point
 
     return target_area
 
@@ -72,13 +72,13 @@ def reduce_points(points, distance):
     length = len(points) - 1
     while i < length:
         new_pt = check_len(points[i], points[i+1], distance)
-        if new_pt != False: 
+        if new_pt != False:
             points.pop(i+1)
             points[i] = new_pt
         i+=1
         length = len(points) - 1
     new_pt = check_len(points[length], points[0], distance)
-    if new_pt != False: 
+    if new_pt != False:
             points.pop(0)
             points[length - 1] = new_pt
     return points
@@ -110,4 +110,3 @@ def recursive(points, distance):
             break
         temp_points = offset(temp_points, distance)
     return result
-

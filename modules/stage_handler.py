@@ -1,6 +1,5 @@
 import asyncio
-import mission_planner
-import time
+
 class StageHandler:
     def __init__(self, Pilot):
         self.Pilot = Pilot
@@ -16,7 +15,7 @@ class StageHandler:
             elif self.stage.ready and self.stage.name == "PREARM":
                 self.switch_stage(stage="TAKEOFF")
             elif self.stage.name == "TAKEOFF" and self.stage.in_air == True:
-                self.switch_stage(stage="ROUTE")
+                self.switch_stage(stage="TEST" if self.Pilot.params.stage.test.run else "ROUTE")
             elif self.stage.name == "PREARM" or self.stage.name == "TAKEOFF":
                 pass
             elif self.target.target_detected and self.stage.name == "ROUTE":
