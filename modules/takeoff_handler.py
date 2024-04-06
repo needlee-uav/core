@@ -2,7 +2,6 @@ import asyncio
 from mavsdk.offboard import VelocityBodyYawspeed
 
 class TakeoffHandler:
-    in_air = False
     def __init__(self):
         pass
 

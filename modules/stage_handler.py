@@ -15,16 +15,23 @@ class StageHandler:
         "EMERGENCY": 3
     }
 
-    def __init__(self, Config, RouteHandler, EmergencyHandler):
-        config = Config["mission"]
-        self.RouteHandler = RouteHandler
-        self.EmergencyHandler = EmergencyHandler
-        self.home = config["home"]
-        self.route_points = mission_planner.build_mission(self.home, config["target_area"], config["offset"])
-        RouteHandler.route = self.route_points
-        RouteHandler.target_point = self.route_points[0]
-        RouteHandler.home = self.home
+    async def __init__(self, Pilot):
+        self.Pilot = Pilot
+        # self.config = Pilot.config["mission"]
+        self.RouteHandler = Pilot.RouteHandler
+        self.EmergencyHandler = Pilot.EmergencyHandler
         self.ServerHandler = None
+        while Pilot.SensorsHandler.position["lat"] == 0.0:
+            await asyncio.sleep(1)
+        self.home = Pilot.SensorsHandler.position
+
+        # Build route
+        # self.home = None
+        # self.route_points = mission_planner.build_mission(self.home, config["target_area"], config["offset"])
+        # self.RouteHandler.route = self.route_points
+        # self.RouteHandler.target_point = self.route_points[0]
+        # self.RouteHandler.home = self.home
+
 
     def rebuild_route(self, Config):
         self.home= {
@@ -38,13 +45,12 @@ class StageHandler:
 
     async def handle_stages(self):
         while True:
-            if self.EmergencyHandler.emergency:
+            if self.Pilot.EmergencyHandler.emergency:
                 self.switch_stage(stage="EMERGENCY")
-                print(self.stage)
                 return
             elif self.stage == None:
                 self.switch_stage(stage="PREARM")
-            elif self.ServerHandler.ready and self.stage == -1:
+            elif self.Pilot.ServerHandler.ready and self.stage == -1:
                 self.switch_stage(stage="TAKEOFF")
             elif self.stage == 0 and self.in_air == True:
                 self.switch_stage(stage="ROUTE")
@@ -59,4 +65,4 @@ class StageHandler:
     def switch_stage(self, stage):
         if stage in self.stages:
             self.stage = self.stages[stage]
-            self.Logger.log_debug(f"STAGE: {stage}")
+            self.Pilot.Logger.log_debug(f"STAGE: {stage}")

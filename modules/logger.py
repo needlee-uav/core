@@ -2,14 +2,16 @@ import logging
 import asyncio
 
 class Logger:
-    def __init__(self, WebSocketHandler):
-        self.WebSocketHandler = WebSocketHandler
-        self.debug = []
+    def __init__(self, Pilot):
+        self.debug_log = Pilot.params.debug_log
+        self.sensors = Pilot.params.sensors
         logging.basicConfig(filename='main.log', filemode='w', format='%(levelname)s %(asctime)s - %(message)s', level=logging.DEBUG)
+        asyncio.ensure_future(self.log())
+        self.log_debug("LOGGER: ready")
 
-    async def log(self, SensorsHandler):
+    async def log(self):
         while True:
-            line = f"rel_alt:{SensorsHandler.rel_alt}; heading:{SensorsHandler.heading}; lat:{SensorsHandler.position['lat']}; lon:{SensorsHandler.position['lon']}"
+            line = f"rel_alt:{self.sensors.position.alt}; heading:{self.sensors.heading}; lat:{self.sensors.position.lon}; lon:{self.sensors.position.lon}"
             self.log_info(line)
             await asyncio.sleep(1)
 
@@ -18,4 +20,4 @@ class Logger:
 
     def log_debug(self, msg):
         logging.log(level=logging.DEBUG, msg=msg)
-        self.WebSocketHandler.debug.append(msg)
+        self.debug_log.append(msg)

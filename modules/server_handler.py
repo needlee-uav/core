@@ -5,27 +5,17 @@ import threading
 import cv2
 import base64
 
+
+import numpy as np
 class ServerHandler:
-    Logger = None
-    def __init__(self, server_config, CameraHandler, SensorsHandler, StageHandler, EmergencyHandler, Pilot):
+    def __init__(self, Pilot):
         self.Pilot = Pilot
-        self.EmergencyHandler = EmergencyHandler
-        self.CameraHandler = CameraHandler
-        self.SensorsHandler = SensorsHandler
-        self.StageHandler = StageHandler
-        self.debug = []
-        self.server_config = server_config
-        self.connected = False
-        self.ready = False
-        self.test_mode = None
-        self.home = None
-        self.route = None
-        self.enable_camera = None
+        self.start_websocket()
 
     def process_debug(self):
-        if len(self.debug) > 0:
-            msg = self.debug[0]
-            self.debug.pop(0)
+        if len(self.Pilot.params.debug_log) > 0:
+            msg = self.Pilot.params.debug_log[0]
+            self.Pilot.params.debug_log.pop(0)
             return msg
         return ""
 
@@ -34,25 +24,26 @@ class ServerHandler:
         t.start()
 
     def _handler(self):
+        self.Pilot.Logger.log_debug("SERVER: open connection")
         sio = socketio.Client(engineio_logger=False)
-
         @sio.event
         def connect():
-            self.Logger.log_debug("SERVER: connected")
-            self.connected = True
-            while self.SensorsHandler.position["lat"] == 0.0:
+            self.Pilot.Logger.log_debug("SERVER: connected")
+            self.Pilot.params.server.connected = True
+            while self.Pilot.params.sensors.position.lat == 0.0:
                 time.sleep(1)
             sio.emit('vehicle_sign_in', data={
-                "id": self.server_config["drone_id"],
-                "lat": self.SensorsHandler.position["lat"],
-                "lon": self.SensorsHandler.position["lon"],
-                "alt": self.SensorsHandler.rel_alt,
-                "h": self.SensorsHandler.heading,
-                "v_m_s": self.SensorsHandler.velocity_down_m_s
+                "id": self.Pilot.config.drone_id,
+                "lat": self.Pilot.params.sensors.position.lat,
+                "lon": self.Pilot.params.sensors.position.lon,
+                "alt": self.Pilot.params.sensors.position.alt,
+                "h": self.Pilot.params.sensors.heading,
+                "v_m_s": self.Pilot.params.sensors.velocity_down_m_s,
             })
+            self.Pilot.Logger.log_debug("SERVER: vehicle sign in")
             while True:
                 time.sleep(0.1)
-                img = cv2.resize(self.CameraHandler.image, (0,0), fx=0.5, fy=0.5)
+                img = cv2.resize(self.Pilot.params.img, (0,0), fx=0.5, fy=0.5)
                 frame = cv2.imencode('.jpg', img)[1].tobytes()
                 frame = base64.encodebytes(frame).decode("utf-8")
                 frame = frame.replace("data:image/jpeg;base64,", "")
@@ -61,51 +52,51 @@ class ServerHandler:
                     "frame": frame,
                     "debug": self.process_debug(),
                     "log": {
-                        "pitch": self.SensorsHandler.pitch,
-                        "roll": self.SensorsHandler.roll,
-                        "lat": self.SensorsHandler.position["lat"],
-                        "lon": self.SensorsHandler.position["lon"],
-                        "alt": self.SensorsHandler.rel_alt,
-                        "h": self.SensorsHandler.heading,
-                        "v_m_s": self.SensorsHandler.velocity_down_m_s
+                        "pitch": self.Pilot.params.sensors.pitch,
+                        "roll": self.Pilot.params.sensors.roll,
+                        "lat": self.Pilot.params.sensors.position.lat,
+                        "lon": self.Pilot.params.sensors.position.lon,
+                        "alt": self.Pilot.params.sensors.position.alt,
+                        "h": self.Pilot.params.sensors.heading,
+                        "v_m_s": self.Pilot.params.sensors.velocity_down_m_s
                     }
                 })
                 time.sleep(0)
 
         @sio.event
         def disconnect():
-            self.connected = False
-            self.Logger.log_debug("Server: disconnected")
+            self.Pilot.params.server.connected = False
+            self.Pilot.Logger.log_debug("SERVER: disconnected")
 
         @sio.on("emergency")
         def emergency(data):
-            self.EmergencyHandler.pass_emergency_data(data)
+            self.Pilot.params.stage.emergency_data = data
+            self.Pilot.params.stage.emergency = True
 
         @sio.on("update_config")
         def update_config():
-            self.Logger.log_debug("Server: update config")
+            self.Pilot.Logger.log_debug("SERVER: update config")
 
         @sio.on("ready")
         def ready(data):
-            self.Logger.log_debug("SERVER: ready")
-            self.Logger.log_debug("=============")
-            self.Logger.log_debug(data)
-            self.Logger.log_debug("=============")
+            self.Pilot.Logger.log_debug("SERVER: ready")
+            self.Pilot.Logger.log_debug("=============")
+            self.Pilot.Logger.log_debug(data)
+            self.Pilot.Logger.log_debug("=============")
             if data["test_mode"]:
-                self.test_mode = data["test_mode"]
-                self.home = data["home"]
-                self.route = data["route"]
-                self.enable_camera = data["enable_camera"]
-                self.Pilot.enable_camera = self.enable_camera
-            self.ready = True
+                self.Pilot.params.stage.test.run = True
+                self.Pilot.params.stage.test.name = data["test_mode"]
+                self.Pilot.params.route.route = data["route"]
+                self.Pilot.params.server.enable_camera = data["enable_camera"]
+            self.Pilot.params.stage.ready = True
 
-        connected = False
-        while not connected:
+        self.Pilot.params.server.connected = False
+        while not self.Pilot.params.server.connected:
             try:
-                sio.connect(self.server_config["url"], transports='websocket')
-                self.Logger.log_debug("SERVER: socket established")
-                connected = True
+                sio.connect(self.Pilot.config.server_url, transports='websocket')
+                self.Pilot.Logger.log_debug("SERVER: socket established")
+                self.Pilot.params.server.connected = True
                 sio.wait()
             except Exception as ex:
-                self.Logger.log_debug("SERVER: failed to establish initial connnection to server:", type(ex).__name__)
+                self.Pilot.Logger.log_debug(f"SERVER: failed to establish initial connnection to server")
                 time.sleep(2)

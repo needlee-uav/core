@@ -1,5 +1,16 @@
 {
     "mode": "test",
+    "mode_options": ["sim", "test"],
+    "sim": {
+
+    },
+    "test": {
+
+    },
+
+
+
+
     "server": {
         "url": "http://0.0.0.0:8080/console",
         "drone_id": "UAV-1234"

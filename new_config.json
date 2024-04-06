@@ -1,0 +1,19 @@
+{
+    "system_address": {
+        "sim": "udp://:14540",
+        "main": "serial:///dev/ttyACM0"
+    },
+
+    "server": {
+        "url": "https://seahorse-app-g5t33.ondigitalocean.app/console",
+        "local_url": "http://0.0.0.0:8080/console",
+        "drone_id": "UAV-1234"
+    },
+
+    "vision": {
+        "camera_address": "tcp://127.0.0.1:8888",
+        "width": 320,
+        "height": 320,
+        "model": "yolov8n.pt"
+    }
+}

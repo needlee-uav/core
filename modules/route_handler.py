@@ -3,12 +3,12 @@ import asyncio
 import math
 
 class RouteHandler:
-    Logger = None
-    point_i = 0
-    route = None
-    target_point = None
-    checkpoint = None
-    home = None
+    def __init__(self, Pilot):
+        self.Drone = Pilot.Drone
+        self.sensors = Pilot.params.sensors
+        self.stage = Pilot.params.stage
+        # TODO
+        # asyncio.ensure_future(self.update_target_point)
 
     async def update_target_point(self, Drone, SensorsHandler, StageHandler):
         while not StageHandler.in_air:
