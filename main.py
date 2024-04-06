@@ -18,6 +18,17 @@ class OffboardComand:
 class OffboardAlgorithm:
     commands: list[OffboardComand] = None
 
+@dataclass
+class Position:
+    lat: float
+    lon: float
+    alt: float
+    def __init__(self, lat, lon, alt):
+        self.lat = lat
+        self.lon = lon
+        self.alt = alt if alt else None
+
+
 async def run():
     print("INIT")
     config = Config()

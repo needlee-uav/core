@@ -12,8 +12,8 @@ class OffboardCommandsScenario:
         self.Pilot.params.offboard.algo.commands = [
             OffboardComand(10, 0, 0, -0.5, 0),
             OffboardComand(5, 0.5, 0, 0, 0),
-            OffboardComand(5, 0.5, 0, -0.5, 12),
-            OffboardComand(5, -0.5, 0, -0.5, -12),
+            OffboardComand(5, -0.5, 0, -0.5, -10),
+            OffboardComand(5, 1, 0, -0.5, 0),
             OffboardComand(5, 0, 0, 0.5, 0)
         ]
         self.Pilot.params.stage.offboard_mode = True

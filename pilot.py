@@ -12,18 +12,7 @@ import modules.takeoff_handler as takeoff_handler
 import modules.emergency_handler as emergency_handler
 import test_scenarios.test_scenarios_handler as test_scenarios_handler
 #import modules.vision_handler as vision_handler
-from main import OffboardAlgorithm, OffboardComand
-@dataclass
-class Position:
-    lat: float
-    lon: float
-    alt: float
-    def __init__(self, lat, lon, alt):
-        self.lat = lat
-        self.lon = lon
-        self.alt = alt if alt else None
-
-
+from main import OffboardAlgorithm, Position
 
 @dataclass
 class Test():
@@ -106,7 +95,6 @@ class Pilot:
         self.TakeoffHandler = takeoff_handler.TakeoffHandler(Pilot=self)
         self.OffboardHandler = offboard_handler.OffboardHandler(Pilot=self)
         # self.RouteHandler = route_handler.RouteHandler(self=Pilot)
-        # self.OffboardHandler = offboard_handler.OffboardHandler(Pilot=self)
         # self.YoloHandler = vision_handler.YoloHandler(CameraHandler=self.CameraHandler)
         if config.test_mode:
             self.params.stage.test.run = True
