@@ -34,12 +34,13 @@ class Stage:
     ready: bool = False
     in_air: bool = False
     emergency: bool = False
-    emergency_data: str = ""
-    stage: str = "PREARM"
+    emergency_data: dict = field(default_factory=dict)
+    name: str = "PREARM"
     offboard_mode: bool = False
 
 @dataclass
 class Sensors:
+    ready: bool = False
     position: Position = Position(0.0, 0.0, 0.0)
     heading: float = 0.0
     pitch: float = 0.0
@@ -98,11 +99,10 @@ class Pilot:
         self.EmergencyHandler = emergency_handler.EmergencyHandler(Pilot=self)
         self.CameraHandler = camera_handler.CameraHandler(Pilot=self)
         if not config.serverless: self.ServerHandler = server_handler.ServerHandler(Pilot=self)
-        # TODO
+        self.StageHandler = stage_handler.StageHandler(Pilot=self)
         self.TakeoffHandler = takeoff_handler.TakeoffHandler(Pilot=self)
         # self.RouteHandler = route_handler.RouteHandler(self=Pilot)
         # self.OffboardHandler = offboard_handler.OffboardHandler(Pilot=self)
-        # self.StageHandler = stage_handler.StageHandler(Pilot=self)
         # self.YoloHandler = vision_handler.YoloHandler(CameraHandler=self.CameraHandler)
         asyncio.ensure_future(self.monitor())
 
@@ -143,5 +143,5 @@ class Pilot:
             self.Logger.log_debug("PILOT: takeoff OK")
     async def monitor(self):
         while True:
-            # print(self.params.img)
+            print(self.params.stage)
             await asyncio.sleep(1)

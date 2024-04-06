@@ -1,12 +1,13 @@
 import asyncio
 import mission_planner
+import time
 class StageHandler:
-    Logger = None
-    target_detected = False
-    target_captured = False
-    offboard_mode = False
-    in_air = False
-    stage = None
+    # Logger = None
+    # target_detected = False
+    # target_captured = False
+    # offboard_mode = False
+    # in_air = False
+    # stage = None
     stages = {
         "PREARM": -1,
         "TAKEOFF": 0,
@@ -15,54 +16,39 @@ class StageHandler:
         "EMERGENCY": 3
     }
 
-    async def __init__(self, Pilot):
+    def __init__(self, Pilot):
         self.Pilot = Pilot
-        # self.config = Pilot.config["mission"]
-        self.RouteHandler = Pilot.RouteHandler
-        self.EmergencyHandler = Pilot.EmergencyHandler
-        self.ServerHandler = None
-        while Pilot.SensorsHandler.position["lat"] == 0.0:
-            await asyncio.sleep(1)
-        self.home = Pilot.SensorsHandler.position
-
-        # Build route
-        # self.home = None
-        # self.route_points = mission_planner.build_mission(self.home, config["target_area"], config["offset"])
-        # self.RouteHandler.route = self.route_points
-        # self.RouteHandler.target_point = self.route_points[0]
-        # self.RouteHandler.home = self.home
-
-
-    def rebuild_route(self, Config):
-        self.home= {
-            "lat": Config["home"][0],
-            "lon": Config["home"][1]
-        }
-        self.route_points = mission_planner.build_raw_route(Config["home"], Config["route"])
-        self.RouteHandler.route = self.route_points
-        self.RouteHandler.target_point = self.route_points[0]
-        self.RouteHandler.home = self.home
+        self.stage = Pilot.params.stage
+        self.target = Pilot.params.target
+        asyncio.ensure_future(self.handle_stages())
 
     async def handle_stages(self):
         while True:
-            if self.Pilot.EmergencyHandler.emergency:
+            if self.stage.emergency:
                 self.switch_stage(stage="EMERGENCY")
                 return
-            elif self.stage == None:
-                self.switch_stage(stage="PREARM")
-            elif self.Pilot.ServerHandler.ready and self.stage == -1:
+            elif self.stage.ready and self.stage.name == "PREARM":
                 self.switch_stage(stage="TAKEOFF")
-            elif self.stage == 0 and self.in_air == True:
+            elif self.stage.name == "TAKEOFF" and self.stage.in_air == True:
                 self.switch_stage(stage="ROUTE")
-            elif self.stage == -1 or self.stage == 0:
+            elif self.stage.name == "PREARM" or self.stage.name == "TAKEOFF":
                 pass
-            elif not self.target_detected and self.stage != 1:
-                self.switch_stage(stage="ROUTE")
-            elif (self.target_detected and self.stage == 1):
-               self.switch_stage(stage="CAPTURE")
+            elif self.target.target_detected and self.stage.name == "ROUTE":
+                self.switch_stage(stage="CAPTURE")
+            elif not self.target.target_detected and self.stage.name == "CAPTURE":
+               self.switch_stage(stage="ROUTE")
             await asyncio.sleep(0.05)
 
     def switch_stage(self, stage):
-        if stage in self.stages:
-            self.stage = self.stages[stage]
-            self.Pilot.Logger.log_debug(f"STAGE: {stage}")
+        self.stage.name = stage
+        self.Pilot.Logger.log_debug(f"STAGE: {stage}")
+
+    # def rebuild_route(self, Config):
+    #     self.home= {
+    #         "lat": Config["home"][0],
+    #         "lon": Config["home"][1]
+    #     }
+    #     self.route_points = mission_planner.build_raw_route(Config["home"], Config["route"])
+    #     self.RouteHandler.route = self.route_points
+    #     self.RouteHandler.target_point = self.route_points[0]
+    #     self.RouteHandler.home = self.home

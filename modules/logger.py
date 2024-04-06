@@ -11,7 +11,7 @@ class Logger:
 
     async def log(self):
         while True:
-            line = f"rel_alt:{self.sensors.position.alt}; heading:{self.sensors.heading}; lat:{self.sensors.position.lon}; lon:{self.sensors.position.lon}"
+            line = f"rel_alt:{self.sensors.position.alt}; heading:{self.sensors.heading}; lat:{self.sensors.position.lat}; lon:{self.sensors.position.lon}"
             self.log_info(line)
             await asyncio.sleep(1)
 

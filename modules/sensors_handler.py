@@ -4,13 +4,20 @@ import time
 class SensorsHandler:
     def __init__(self, Pilot):
         self.Drone = Pilot.Drone
+        self.Logger = Pilot.Logger
         self.params = Pilot.params.sensors
+        asyncio.ensure_future(self.ready())
         asyncio.ensure_future(self.update_position())
         asyncio.ensure_future(self.update_heading())
         asyncio.ensure_future(self.update_pitch_roll())
         asyncio.ensure_future(self.update_vertical_velocity())
-        Pilot.Logger.log_debug("SENSORS: ready")
 
+
+    async def ready(self):
+        while self.params.position.lat == 0.0:
+            await asyncio.sleep(1)
+        self.params.ready = True
+        self.Logger.log_debug("SENSORS: ready")
 
     async def update_vertical_velocity(self):
         async for velocity in self.Drone.telemetry.velocity_ned():

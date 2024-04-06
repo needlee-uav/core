@@ -30,7 +30,7 @@ class ServerHandler:
         def connect():
             self.Pilot.Logger.log_debug("SERVER: connected")
             self.Pilot.params.server.connected = True
-            while self.Pilot.params.sensors.position.lat == 0.0:
+            while not self.Pilot.params.sensors.ready:
                 time.sleep(1)
             sio.emit('vehicle_sign_in', data={
                 "id": self.Pilot.config.drone_id,
@@ -80,23 +80,23 @@ class ServerHandler:
         @sio.on("ready")
         def ready(data):
             self.Pilot.Logger.log_debug("SERVER: ready")
-            self.Pilot.Logger.log_debug("=============")
             self.Pilot.Logger.log_debug(data)
-            self.Pilot.Logger.log_debug("=============")
+            self.Pilot.params.route.route = data["route"]
+            self.Pilot.params.server.enable_camera = True
+
             if data["test_mode"]:
                 self.Pilot.params.stage.test.run = True
                 self.Pilot.params.stage.test.name = data["test_mode"]
-                self.Pilot.params.route.route = data["route"]
                 self.Pilot.params.server.enable_camera = data["enable_camera"]
+
             self.Pilot.params.stage.ready = True
 
-        self.Pilot.params.server.connected = False
         while not self.Pilot.params.server.connected:
             try:
-                sio.connect(self.Pilot.config.server_url, transports='websocket')
+                sio.connect(self.Pilot.config.server_url, transports="websocket")
                 self.Pilot.Logger.log_debug("SERVER: socket established")
                 self.Pilot.params.server.connected = True
                 sio.wait()
-            except Exception as ex:
-                self.Pilot.Logger.log_debug(f"SERVER: failed to establish initial connnection to server")
+            except Exception as e:
+                self.Pilot.Logger.log_debug("SERVER: failed to establish initial connnection to server")
                 time.sleep(2)
