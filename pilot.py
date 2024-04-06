@@ -12,7 +12,7 @@ import modules.takeoff_handler as takeoff_handler
 import modules.emergency_handler as emergency_handler
 import test_scenarios.test_scenarios_handler as test_scenarios_handler
 #import modules.vision_handler as vision_handler
-
+from main import OffboardAlgorithm, OffboardComand
 @dataclass
 class Position:
     lat: float
@@ -22,6 +22,8 @@ class Position:
         self.lat = lat
         self.lon = lon
         self.alt = alt if alt else None
+
+
 
 @dataclass
 class Test():
@@ -62,6 +64,7 @@ class Route:
 
 @dataclass
 class Offboard:
+    algo: OffboardAlgorithm = None
     grid_yaw: bool = False
     target_coords: Position = None
     yaw_diff: float = 0.0
@@ -101,8 +104,7 @@ class Pilot:
         if not config.serverless: self.ServerHandler = server_handler.ServerHandler(Pilot=self)
         self.StageHandler = stage_handler.StageHandler(Pilot=self)
         self.TakeoffHandler = takeoff_handler.TakeoffHandler(Pilot=self)
-        #TODO
-        # self.OffboardHandler = offboard_handler.OffboardHandler(Pilot=self)
+        self.OffboardHandler = offboard_handler.OffboardHandler(Pilot=self)
         # self.RouteHandler = route_handler.RouteHandler(self=Pilot)
         # self.OffboardHandler = offboard_handler.OffboardHandler(Pilot=self)
         # self.YoloHandler = vision_handler.YoloHandler(CameraHandler=self.CameraHandler)

@@ -19,7 +19,7 @@ class TestScenariosHandler:
         self.scenarios = [
             None,
             SoftTakeoffScenario(Pilot),
-            OffboardCommandsScenario(),
+            OffboardCommandsScenario(Pilot),
             RouteFlightScenario()
         ]
         asyncio.ensure_future(self.handle_scenarios())

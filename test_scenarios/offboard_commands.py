@@ -1,46 +1,24 @@
-import asyncio, datetime
-from mavsdk.offboard import (Attitude, VelocityBodyYawspeed)
+import asyncio
+from main import OffboardAlgorithm, OffboardComand
 
 class OffboardCommandsScenario:
     Logger = None
-    def __init__(self):
-        pass
+    def __init__(self, Pilot):
+        self.Pilot = Pilot
 
-    async def run(self, Logger, StageHandler, SensorsHandler, Drone, TakeoffHandler):
-
-
-        self.Logger.log_debug("test offboard")
-        await Drone.offboard.set_velocity_body(
-            VelocityBodyYawspeed(0.0, 0.3, 0.0, 0.0))
+    async def run(self):
+        self.Pilot.Logger.log_debug("TEST: Offboard commands scenario")
+        self.Pilot.params.offboard.algo = OffboardAlgorithm()
+        self.Pilot.params.offboard.algo.commands = [
+            OffboardComand(10, 0, 0, -0.5, 0),
+            OffboardComand(5, 0.5, 0, 0, 0),
+            OffboardComand(5, 0.5, 0, -0.5, 12),
+            OffboardComand(5, -0.5, 0, -0.5, -12),
+            OffboardComand(5, 0, 0, 0.5, 0)
+        ]
+        self.Pilot.params.stage.offboard_mode = True
+        while self.Pilot.params.stage.offboard_mode:
+            await asyncio.sleep(1)
+        self.Pilot.Logger.log_debug("DRONE: landing")
+        await self.Pilot.Drone.action.land()
         await asyncio.sleep(10)
-        await Drone.offboard.set_velocity_body(
-            VelocityBodyYawspeed(0.0, -0.3, 0.0, 0.0))
-        await asyncio.sleep(10)
-        await Drone.offboard.set_velocity_body(
-            VelocityBodyYawspeed(0.3, 0.0, 0.0, 0.0))
-        await asyncio.sleep(20)
-        await Drone.offboard.set_velocity_body(
-            VelocityBodyYawspeed(-0.3, 0.0, 0.0, 0.0))
-        await asyncio.sleep(10)
-        await Drone.offboard.set_velocity_body(
-            VelocityBodyYawspeed(0.0, 0.0, 0.0, 7))
-        await asyncio.sleep(10)
-        await Drone.offboard.set_velocity_body(
-            VelocityBodyYawspeed(0.0, 0.0, 0.0, -7))
-        await asyncio.sleep(10)
-        self.Logger.log_debug("slow landing")
-        await Drone.offboard.set_velocity_body(
-            VelocityBodyYawspeed(0.0, 0.0, 0.1, 0.0))
-        await asyncio.sleep(10)
-        self.Logger.log_debug("land")
-        await Drone.action.land()
-        await asyncio.sleep(20)
-        self.Logger.log_debug("kill")
-        await Drone.action.kill()
-
-    async def kill_on_takeoff_shake(self, StageHandler, SensorsHandler, Drone):
-        while StageHandler.stage == 0:
-            if (abs(SensorsHandler.pitch) > 8 or abs(SensorsHandler.roll) > 8):
-                self.Logger.log_debug("TAKEOFF: shake! KILL")
-                await Drone.action.kill()
-            await asyncio.sleep(0.05)

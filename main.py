@@ -4,6 +4,19 @@ import argparse
 import asyncio
 from mavsdk import System
 import pilot as pilot
+from dataclasses import dataclass, field
+
+@dataclass
+class OffboardComand:
+    duration: float
+    forward_m_s: float
+    right_m_s: float
+    down_m_s: float
+    yawspeed_deg_s: float
+
+@dataclass
+class OffboardAlgorithm:
+    commands: list[OffboardComand] = None
 
 async def run():
     print("INIT")
