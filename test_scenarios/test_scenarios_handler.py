@@ -20,7 +20,7 @@ class TestScenariosHandler:
             None,
             SoftTakeoffScenario(Pilot),
             OffboardCommandsScenario(Pilot),
-            RouteFlightScenario()
+            RouteFlightScenario(Pilot)
         ]
         asyncio.ensure_future(self.handle_scenarios())
         self.Pilot.Logger.log_debug("TEST: ready")

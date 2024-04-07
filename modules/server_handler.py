@@ -2,6 +2,7 @@ import socketio, time
 import threading
 import cv2
 import base64
+from main import Position
 
 class ServerHandler:
     def __init__(self, Pilot):
@@ -77,7 +78,7 @@ class ServerHandler:
         def ready(data):
             self.Pilot.Logger.log_debug("SERVER: ready")
             self.Pilot.Logger.log_debug(data)
-            self.Pilot.params.route.route = data["route"]
+            self.Pilot.params.route.points = self.push_route_points(data["route"])
             self.Pilot.params.server.enable_camera = True
             if data["test_mode"]:
                 self.Pilot.params.stage.test.id = data["test_mode"]
@@ -93,3 +94,11 @@ class ServerHandler:
             except Exception as e:
                 self.Pilot.Logger.log_debug("SERVER: failed to establish initial connnection to server")
                 time.sleep(2)
+
+    def push_route_points(self, route_points):
+        if not route_points: return None
+        points = []
+        for point in route_points:
+            alt = point[2] if len(point) == 3 else None
+            points.append(Position(lat=point[0], lon=point[1], alt=alt))
+        return points

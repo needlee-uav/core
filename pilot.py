@@ -45,8 +45,9 @@ class Server:
 
 @dataclass
 class Route:
+    point_reached: bool = False
     point_i: int = 0
-    route: list = field(default_factory=list)
+    points: list[Position] = None
     target_point: Position = None
     checkpoint: Position = None
     home: Position = None
@@ -94,7 +95,7 @@ class Pilot:
         self.StageHandler = stage_handler.StageHandler(Pilot=self)
         self.TakeoffHandler = takeoff_handler.TakeoffHandler(Pilot=self)
         self.OffboardHandler = offboard_handler.OffboardHandler(Pilot=self)
-        # self.RouteHandler = route_handler.RouteHandler(self=Pilot)
+        self.RouteHandler = route_handler.RouteHandler(Pilot=self)
         # self.YoloHandler = vision_handler.YoloHandler(CameraHandler=self.CameraHandler)
         if config.test_mode:
             self.params.stage.test.run = True
