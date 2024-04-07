@@ -78,6 +78,7 @@ class ServerHandler:
         def ready(data):
             self.Pilot.Logger.log_debug("SERVER: ready")
             self.Pilot.Logger.log_debug(data)
+            self.Pilot.params.route.home = Position(self.Pilot.params.sensors.position.lat, self.Pilot.params.sensors.position.lon, 2)
             self.Pilot.params.route.points = self.push_route_points(data["route"])
             self.Pilot.params.server.enable_camera = True
             if data["test_mode"]:

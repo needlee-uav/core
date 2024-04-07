@@ -45,8 +45,9 @@ class Server:
 
 @dataclass
 class Route:
+    route_finished: bool = False
     point_reached: bool = False
-    point_i: int = 0
+    point_i: int = -1
     points: list[Position] = None
     target_point: Position = None
     checkpoint: Position = None
