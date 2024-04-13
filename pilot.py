@@ -12,7 +12,12 @@ import modules.takeoff_handler as takeoff_handler
 import modules.emergency_handler as emergency_handler
 import test_scenarios.test_scenarios_handler as test_scenarios_handler
 #import modules.vision_handler as vision_handler
+import modules.vision as vision_handler
 from main import OffboardAlgorithm, Position
+import cv2 as cv
+import numpy as np
+from multiprocessing import Process,Queue,Pipe
+from camera import view_camera_video
 
 @dataclass
 class Test():
@@ -72,6 +77,7 @@ class Target:
 
 @dataclass
 class Params:
+    box: list = field(default_factory=list)
     img: list = field(default_factory=list)
     debug_log: list = field(default_factory=list)
     stage: Stage = Stage()
@@ -82,30 +88,27 @@ class Params:
     target: Target = Target()
 
 class Pilot:
-    def __init__(self, Drone, config):
+    def __init__(self, Drone, config, camera):
         self.Drone = Drone
         self.params = Params()
         self.config = config
 
-        # Essential
+        asyncio.ensure_future(self.monitor(camera=camera))
+
         self.Logger = logger.Logger(Pilot=self)
         self.SensorsHandler = sensors_handler.SensorsHandler(Pilot=self)
         self.EmergencyHandler = emergency_handler.EmergencyHandler(Pilot=self)
-        self.CameraHandler = camera_handler.CameraHandler(Pilot=self)
         if not config.serverless: self.ServerHandler = server_handler.ServerHandler(Pilot=self)
         self.StageHandler = stage_handler.StageHandler(Pilot=self)
         self.TakeoffHandler = takeoff_handler.TakeoffHandler(Pilot=self)
         self.OffboardHandler = offboard_handler.OffboardHandler(Pilot=self)
         self.RouteHandler = route_handler.RouteHandler(Pilot=self)
-        # self.YoloHandler = vision_handler.YoloHandler(CameraHandler=self.CameraHandler)
         if config.test_mode:
             self.params.stage.test.run = True
             self.TestScenariosHandler = test_scenarios_handler.TestScenariosHandler(Pilot=self)
 
-        asyncio.ensure_future(self.monitor())
-
-
-    async def monitor(self):
+    async def monitor(self, camera):
         while True:
-            # print(self.params.stage)
-            await asyncio.sleep(1)
+            self.params.img = camera.img
+            self.params.box = camera.box
+            await asyncio.sleep(0.01)

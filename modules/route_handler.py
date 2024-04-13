@@ -5,7 +5,7 @@ from dataclasses import dataclass
 
 @dataclass
 class Instructions:
-    forward_m_s: float = 4.0
+    forward_m_s: float = 2.0
     right_m_s: float = 0.0
     down_m_s: float = 0.0
     yawspeed_deg_s: float = 0.0
@@ -62,7 +62,7 @@ class RouteHandler:
     async def handle_alt(self):
         while True:
             if self.stage.name == "ROUTE":
-                target_alt = 8
+                target_alt = 12
                 alt_diff = self.sensors.position.alt - target_alt
                 self.instructions.down_m_s = alt_diff / 5
             await asyncio.sleep(0.05)

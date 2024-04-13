@@ -5,6 +5,8 @@ import asyncio
 from mavsdk import System
 import pilot as pilot
 from dataclasses import dataclass, field
+from multiprocessing import Process, Pipe
+from camera import view_camera_video
 
 @dataclass
 class OffboardComand:
@@ -28,11 +30,19 @@ class Position:
         self.lon = lon
         self.alt = alt if alt else None
 
+@dataclass
+class Camera:
+    box: list = field(default_factory=list)
+    img: list = field(default_factory=list)
 
 async def run():
     print("INIT")
     config = Config()
     Drone = System()
+    camera = Camera()
+    parent_conn,child_conn = Pipe()
+    p = Process(target=view_camera_video, args=(child_conn, config, ))
+    p.start()
 
     await Drone.connect(system_address=config.system_address)
     print("Waiting for drone to connect...")
@@ -47,10 +57,13 @@ async def run():
                 print("-- Global position state is good enough for flying.")
                 break
 
-    pilot.Pilot(Drone=Drone, config=config)
+    pilot.Pilot(Drone=Drone, config=config, camera=camera)
 
     while True:
-        await asyncio.sleep(1)
+        cam_data = parent_conn.recv()
+        camera.box = cam_data[:4]
+        camera.img = cam_data[4]
+        await asyncio.sleep(0.05)
 
 class Config:
     def __init__(self):
