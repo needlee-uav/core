@@ -47,6 +47,7 @@ git clone https://github.com/steven-kollo/t-needle
 ============================================
 
 ## Setup Jetson Nano environment on Debian Ubuntu 20
+https://sahilchachra.medium.com/setting-up-nvidias-jetson-nano-from-jetpack-to-yolov5-60a004bf48bc
 ###
 Download required packages
 ```
