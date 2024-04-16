@@ -73,3 +73,13 @@ tf.Tensor(501.81415, shape(), dtype=float32)
 ```
 https://docs.ultralytics.com/yolov5/tutorials/running_on_jetson_nano/#deepstream-configuration-for-yolov5
 https://forums.developer.nvidia.com/t/getting-error-as-error-failed-building-wheel-for-onnx/267524
+
+ONNX RUNTIME
+```
+wget https://nvidia.box.com/shared/static/iizg3ggrtdkqawkmebbfixo7sce6j365.whl -O onnxruntime_gpu-1.10.0-cp36-cp36-linux_aarch64.whl
+python3 -m pip install onnxruntime_gpu-1.10.0-cp36-cp36-linux_aarch64.whl
+```
+```
+sudo apt-get install protobuf-compiler lobprotoc-dev
+python3 -m pip install onnx
+```
