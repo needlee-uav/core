@@ -14,6 +14,13 @@
         "camera_address": "tcp://127.0.0.1:8888",
         "width": 320,
         "height": 320,
-        "model": "yolov8n.pt"
+        "model": "yolov5nu.onnx"
+    },
+
+    "jetson_vision": {
+        "camera_address": "/dev/video0",
+        "width": 640,
+        "height": 480,
+        "model": "ssd-mobilenet-v2"
     }
 }
