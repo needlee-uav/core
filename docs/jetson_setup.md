@@ -83,3 +83,5 @@ python3 -m pip install onnxruntime_gpu-1.10.0-cp36-cp36-linux_aarch64.whl
 sudo apt-get install protobuf-compiler lobprotoc-dev
 python3 -m pip install onnx
 ```
+MobileNet2 dusty-nv install on QEng image
+github.com/dusty-nv/jetson-interface
