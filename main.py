@@ -4,11 +4,9 @@ import argparse
 import asyncio
 from mavsdk import System
 import pilot as pilot
-from dataclasses import dataclass, field
 from multiprocessing import Process, Pipe
 from camera import view_camera_video
 
-@dataclass
 class OffboardComand:
     duration: float
     forward_m_s: float
@@ -16,11 +14,9 @@ class OffboardComand:
     down_m_s: float
     yawspeed_deg_s: float
 
-@dataclass
 class OffboardAlgorithm:
-    commands: list[OffboardComand] = None
+    commands = []
 
-@dataclass
 class Position:
     lat: float
     lon: float
@@ -30,10 +26,9 @@ class Position:
         self.lon = lon
         self.alt = alt if alt else None
 
-@dataclass
 class Camera:
-    box: list = field(default_factory=list)
-    img: list = field(default_factory=list)
+    box = []
+    img = []
 
 class Config:
     def __init__(self):
@@ -122,4 +117,5 @@ async def run():
             await asyncio.sleep(0.05)
 
 if __name__ == "__main__":
-    asyncio.run(run())
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(run())

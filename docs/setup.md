@@ -1,3 +1,23 @@
+pip install empy==3.3.4
+make px4_sitl gazebo-classic
+
+pip3 install --user --upgrade pip
+pip3 install protobuf==3.19.6
+pip3 install mavsdk
+pip3 install aioconsole
+
+pip3 install Flask
+pip3 install gunicorn
+pip3 install eventlet
+pip3 install Flask-socketio
+pip3 install python-engineio
+pip3 install python-socketio
+pip3 install simple-websocket
+pip3 install python-socketio[client]
+
+pip3 install numpy==1.19.4
+pip3 install opencv-python
+
 ## Setup test environment on Ubuntu 22.04
 Test instance reads Gazebo sim camera directly from the screen. Pay attention to the camera module settings
 ### Install

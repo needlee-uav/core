@@ -1,6 +1,5 @@
 import asyncio
 import helpers as helpers
-from dataclasses import dataclass, field
 import modules.route_handler as route_handler
 import modules.sensors_handler as sensors_handler
 import modules.offboard_handler as offboard_handler
@@ -13,47 +12,41 @@ import test_scenarios.test_scenarios_handler as test_scenarios_handler
 from main import OffboardAlgorithm, Position
 import numpy as np
 
-
-@dataclass
 class Test():
     run: bool = False
     id: int = 0
 
-@dataclass
 class Stage:
     test: Test = Test()
     ready: bool = False
     in_air: bool = False
     emergency: bool = False
-    emergency_data: dict = field(default_factory=dict)
-    name: str = "PREARM"
-    offboard_mode: bool = False
+    emergency_data: dict = None
+    name = "PREARM"
+    offboard_mode = False
 
-@dataclass
 class Sensors:
-    ready: bool = False
-    position: Position = Position(0.0, 0.0, 0.0)
-    heading: float = 0.0
-    pitch: float = 0.0
-    roll: float = 0.0
-    velocity_down_m_s: float = 0.0
+    ready = False
+    position = Position(0.0, 0.0, 0.0)
+    heading = 0.0
+    pitch = 0.0
+    roll = 0.0
+    velocity_down_m_s = 0.0
 
-@dataclass
 class Server:
-    connected: bool = False
+    connected = False
     enable_camera: bool = False
 
-@dataclass
-class Route:
-    route_finished: bool = False
-    point_reached: bool = False
-    point_i: int = -1
-    points: list[Position] = None
-    target_point: Position = None
-    checkpoint: Position = None
-    home: Position = None
 
-@dataclass
+class Route:
+    route_finished = False
+    point_reached = False
+    point_i = -1
+    points = []
+    target_point = None
+    checkpoint = None
+    home = None
+
 class Offboard:
     algo: OffboardAlgorithm = None
     grid_yaw: bool = False
@@ -61,7 +54,6 @@ class Offboard:
     yaw_diff: float = 0.0
     distance: float = 0.0
 
-@dataclass
 class Target:
     target_coords: Position = None
     target_distance: float = 0.0
@@ -69,12 +61,10 @@ class Target:
     target_detected: bool = False
     target_captured: bool = False
 
-
-@dataclass
 class Params:
-    box: list = field(default_factory=list)
-    img: list = field(default_factory=list)
-    debug_log: list = field(default_factory=list)
+    box = []
+    img = []
+    debug_log = []
     stage: Stage = Stage()
     sensors: Sensors = Sensors()
     server: Server = Server()

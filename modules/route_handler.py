@@ -1,9 +1,7 @@
 import asyncio
 import math
 from mavsdk.offboard import (VelocityBodyYawspeed)
-from dataclasses import dataclass
 
-@dataclass
 class Instructions:
     forward_m_s: float = 2.0
     right_m_s: float = 0.0
