@@ -1,5 +1,5 @@
 import asyncio
-import helpers as helpers
+import numpy as np
 import modules.route_handler as route_handler
 import modules.sensors_handler as sensors_handler
 import modules.offboard_handler as offboard_handler
@@ -10,7 +10,6 @@ import modules.takeoff_handler as takeoff_handler
 import modules.emergency_handler as emergency_handler
 import test_scenarios.test_scenarios_handler as test_scenarios_handler
 from main import OffboardAlgorithm, Position
-import numpy as np
 
 class Test():
     run: bool = False

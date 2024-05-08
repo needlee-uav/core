@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 import json
 import argparse
 import asyncio
@@ -55,7 +56,7 @@ class ConfigVision:
         self.model = False if no_vision else config_vision["model"]
 
 def load_config():
-    config_file = open('new_config.json')
+    config_file = open('config.json')
     config_json = json.load(config_file)
     config_file.close()
     return config_json

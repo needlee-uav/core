@@ -1,7 +1,18 @@
 
 from math import sqrt
 from math import dist
-import helpers
+import math
+
+def gps_to_meters(lat1, lon1, lat2, lon2):
+    R = 6378.137
+    dLat = lat2 * math.pi / 180 - lat1 * math.pi / 180
+    dLon = lon2 * math.pi / 180 - lon1 * math.pi / 180
+    a = math.sin(dLat/2) * math.sin(dLat/2) + \
+    math.cos(lat1 * math.pi / 180) * math.cos(lat2 * math.pi / 180) * \
+    math.sin(dLon/2) * math.sin(dLon/2)
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+    d = R * c
+    return d * 1000
 
 def build_raw_route(start_pos, points):
     points = list(map(lambda n: (n[0], n[1]), points))
@@ -35,7 +46,7 @@ def build_area_points(start_pos, target_area):
 def get_nearest_point(start_pos, target_area):
     nearest_point_index = 0
     for i in range(len(target_area)):
-        target_area[i]["distance"] = helpers.gps_to_meters(start_pos["lat"], start_pos["lon"], target_area[i]["lat"], target_area[i]["lon"])
+        target_area[i]["distance"] = gps_to_meters(start_pos["lat"], start_pos["lon"], target_area[i]["lat"], target_area[i]["lon"])
         if (target_area[i]["distance"] < target_area[nearest_point_index]["distance"]):
             nearest_point_index = i
     return nearest_point_index

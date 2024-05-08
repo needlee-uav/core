@@ -1,6 +1,5 @@
 import asyncio
 
-
 class SoftTakeoffScenario:
     def __init__(self, Pilot):
         self.Pilot = Pilot

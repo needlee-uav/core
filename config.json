@@ -1,64 +1,26 @@
 {
-    "mode": "test",
-    "mode_options": ["sim", "test"],
-    "sim": {
-
+    "system_address": {
+        "sim": "udp://:14540",
+        "main": "serial:///dev/ttyACM0"
     },
-    "test": {
-
-    },
-
-
-
 
     "server": {
-        "url": "http://0.0.0.0:8080/console",
+        "url": "https://seahorse-app-g5t33.ondigitalocean.app/console",
+        "local_url": "http://0.0.0.0:8080/console",
         "drone_id": "UAV-1234"
     },
-    "sim_mode": 1,
-    "sim_camera_config": {
-        "target_img_path": "./gz_x500_sim/opencv_mss_screen/target.png"
-    },
-    "camera_config": {
-        "sim_camera": true,
-        "target_img_path": ""
-    },
-    "camera": {
-        "sim_mode": true,
-        "camera_config": {
-            "target_path": "tcp://127.0.0.1:8888"
-        },
-        "sim_camera_config": {
 
-        }
+    "vision": {
+        "camera_address": "tcp://127.0.0.1:8888",
+        "width": 320,
+        "height": 320,
+        "model": "yolov5nu.onnx"
     },
-    "mission": {
-        "home": {
-            "lat": 47.3977426,
-            "lon": 8.5455928
-        },
-        "offset": 0.00008,
-        "target_area": [
-            {
-                "alt": 502,
-                "lat": 47.39715,
-            	"lon": 8.54655
-            },
-            {
-                "alt": 502,
-                "lat": 47.39715,
-            	"lon": 8.54585
-            },
-            {
-                "alt": 502,
-                "lat": 47.39765,
-            	"lon": 8.54575
-            },
-            {
-                "alt": 502,
-                "lat": 47.39765,
-            	"lon": 8.54645
-            }
-        ]
+
+    "jetson_vision": {
+        "camera_address": "/dev/video0",
+        "width": 640,
+        "height": 480,
+        "model": "ssd-mobilenet-v2"
     }
 }
