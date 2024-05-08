@@ -60,7 +60,7 @@ class RouteHandler:
     async def handle_alt(self):
         while True:
             if self.stage.name == "ROUTE":
-                target_alt = 12
+                target_alt = 6
                 alt_diff = self.sensors.position.alt - target_alt
                 self.instructions.down_m_s = alt_diff / 5
             await asyncio.sleep(0.05)

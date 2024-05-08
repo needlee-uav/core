@@ -73,25 +73,42 @@ def view_camera_video(child_conn, config):
     img = np.zeros([config.vision.width, config.vision.height, 3],dtype=np.uint8)
     img.fill(255)
     if config.sim:
+        prototxt = "MobileNetSSD_deploy.prototxt"
+        caffe_model = "MobileNetSSD_deploy.caffemodel"
+        net = cv.dnn.readNetFromCaffe(prototxt, caffe_model)
+        classPerson = 15
+
         video = SimVideo()
         while True:
             if not video.frame_available():
                 continue
             frame = video.frame()
-            cv.imshow('frame', frame)
-            if cv.waitKey(1) & 0xFF == ord('q'):
+            width = frame.shape[1]
+            height = frame.shape[0]
+            blob = cv.dnn.blobFromImage(frame, scalefactor = 1/127.5, size = (640, 360), mean = (127.5, 127.5, 127.5), swapRB=True, crop=False)
+            net.setInput(blob)
+            detections = net.forward()
+
+            sent = False
+            for i in range(detections.shape[2]):
+                confidence = detections[0, 0, i, 2]
+                if confidence > 0.3 and int(detections[0, 0, i, 1]) == classPerson:
+                    x1 = int(detections[0, 0, i, 3] * width) 
+                    y1 = int(detections[0, 0, i, 4] * height)
+                    x2 = int(detections[0, 0, i, 5] * width)
+                    y2 = int(detections[0, 0, i, 6] * height)
+                    print(frame.shape)
+                    print((x1, y1))
+                    print((x2, y2))
+                    cv.rectangle(np.float32(frame), (x1, y1), (x2, y2),(0, 255, 0))
+                    child_conn.send([x1, y1, x2, y2, frame])
+                    sent = True
+            if not sent: child_conn.send([0, 0, 0, 0, frame])
+        
+            cv.imshow("frame", frame)
+            if cv.waitKey(1) >= 0:  
                 break
-        #     img = cv.cvtColor(np.array(img)[600:1000, 1500:1900], cv.COLOR_BGRA2RGB)
-        #     results = model(img, verbose=False)
-        #     sent = False
-        #     for result in results:
-        #         #some sorting logic
-        #         for r in result.boxes.data.tolist():
-        #             x1, y1, x2, y2, score, class_id = r
-        #             if score > 0.30 and int(class_id) == 0 and not sent:
-        #                 child_conn.send([x1, y1, x2, y2, img])
-        #                 sent = True
-        #     if not sent: child_conn.send([0, 0, 0, 0, img])
+            print(datetime.datetime.now())
 
     else:
         import jetson_interface
