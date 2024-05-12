@@ -67,11 +67,11 @@ def parse_args():
         ["--visiontest", "Run vision tests"],
         ["--sim", "Run simulation"],
         ["--local", "Run on local server"],
-        ["--serverless", "Run without server connection"],
+        ["--serverless", "Run preset mission without server connection"],
         ["--test", "Run flight tests"],
         ["--nocamera", "Run without camera"],
         ["--novision", "Run without computer vision"],
-        ["--nogps", "Run without gps (leads to dangerous cases)"]
+        ["--nogps", "Run without gps (dangerous)"]
     ]
     for arg in args:
         parser.add_argument(arg[0], help=arg[1], action="store_true")
