@@ -107,7 +107,6 @@ def view_camera_video(child_conn, config):
                     y1 = int(detections[0, 0, i, 4] * height)
                     x2 = int(detections[0, 0, i, 5] * width)
                     y2 = int(detections[0, 0, i, 6] * height)
-                    cv.rectangle(np.float32(frame), (x1, y1), (x2, y2),(0, 255, 0))
                     child_conn.send([x1, y1, x2, y2, frame])
                     sent = True
             if not sent: child_conn.send([0, 0, 0, 0, frame])

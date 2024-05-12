@@ -77,7 +77,12 @@ class Pilot:
         self.params = Params()
         self.config = config
         
-        asyncio.ensure_future(self.monitor(camera=camera))
+        if config.vision == False: 
+            self.params.img = np.zeros([320, 320, 3],dtype=np.uint8)
+            self.params.img.fill(255)
+        else:
+            asyncio.ensure_future(self.monitor(camera=camera))
+            
         self.Logger = logger.Logger(Pilot=self)
         if not config.serverless: self.ServerHandler = server_handler.ServerHandler(Pilot=self)
 
@@ -106,6 +111,4 @@ class Pilot:
         self.params.sensors.position.lon = 44.8015
         self.params.sensors.position.alt = 0.0
         self.params.box=[0,0,0,0]
-        self.params.img = np.zeros([320, 320, 3],dtype=np.uint8)
-        self.params.img.fill(255)
         self.params.sensors.ready = True

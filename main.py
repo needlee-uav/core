@@ -75,7 +75,7 @@ def parse_args():
         ["--local", "Run on local server"],
         ["--serverless", "Run preset mission without server connection"],
         ["--test", "Run flight tests"], # done
-        ["--nocamera", "Run without camera"],
+        ["--nocamera", "Run without camera"], # done
         ["--novision", "Run without computer vision"], # done
         ["--nogps", "Run without gps (dangerous)"]
     ]

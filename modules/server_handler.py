@@ -40,7 +40,7 @@ class ServerHandler:
             self.Pilot.Logger.log_debug("SERVER: vehicle sign in")
             while True:
                 time.sleep(0.1)
-                if self.Pilot.params.box[0] != 0:
+                if self.Pilot.config.vision != False and self.Pilot.params.box[0] != 0:
                     box = self.Pilot.params.box
                     cv2.rectangle(self.Pilot.params.img, (int(box[0]), int(box[1])), (int(box[2]), int(box[3])), (255, 255, 0), 2)
                 img = cv2.resize(self.Pilot.params.img, (0,0), fx=0.5, fy=0.5)
