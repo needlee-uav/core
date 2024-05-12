@@ -72,12 +72,23 @@ class SimVideo():
 def view_camera_video(child_conn, config):
     img = np.zeros([config.vision.width, config.vision.height, 3],dtype=np.uint8)
     img.fill(255)
+    novision = True if not config.vision.model else False
     if config.sim:
+        net = None
         prototxt = "MobileNetSSD_deploy.prototxt"
         caffe_model = "MobileNetSSD_deploy.caffemodel"
-        net = cv.dnn.readNetFromCaffe(prototxt, caffe_model)
         classPerson = 15
+        if not novision:
+            net = cv.dnn.readNetFromCaffe(prototxt, caffe_model)
+        
         video = SimVideo()
+        if novision:
+            while True:
+                if not video.frame_available():
+                    continue
+                frame = video.frame()
+                child_conn.send([0, 0, 0, 0, frame])
+
         while True:
             if not video.frame_available():
                 continue
@@ -104,8 +115,16 @@ def view_camera_video(child_conn, config):
     else:
         import jetson_interface
         import jetson_utils
-        model = jetson_interface.detectNet(config.vision.model, threshold=0.5)
+        
         camera = jetson_utils.gstCamera(config.vision.width, config.vision.height, config.vision.camera_address)
+        if novision:
+            while True:
+                img, width, height = camera.CaptureRGBA()
+                aimg = jetson_utils.cudaToNumpy(img, width, height, 4)
+                frame = cv.cvtColor(aimg.astype(np.uint8), cv.COLOR_RGBA2BGR)
+                child_conn.send([0, 0, 0, 0, frame])
+                
+        model = jetson_interface.detectNet(config.vision.model, threshold=0.5)
         while True:
             img, width, height = camera.CaptureRGBA()
             aimg = jetson_utils.cudaToNumpy(img, width, height, 4)

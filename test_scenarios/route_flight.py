@@ -6,8 +6,8 @@ class RouteFlightScenario:
 
     async def run(self):
         self.Pilot.Logger.log_debug("TEST: Route flight scenario")
-        self.Pilot.params.stage.offboard_mode = True
-        self.Pilot.params.stage.name = "ROUTE"
+        # self.Pilot.params.stage.offboard_mode = True
+        self.Pilot.StageHandler.switch_stage(stage="ROUTE")
         while not self.Pilot.params.route.route_finished:
             await asyncio.sleep(1)
         self.Pilot.Logger.log_debug("DRONE: landing")

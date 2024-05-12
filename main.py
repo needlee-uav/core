@@ -14,6 +14,12 @@ class OffboardComand:
     right_m_s: float
     down_m_s: float
     yawspeed_deg_s: float
+    def __init__(self, duration, forward_m_s, right_m_s, down_m_s, yawspeed_deg_s):
+        self.duration = duration
+        self.forward_m_s = forward_m_s
+        self.right_m_s = right_m_s
+        self.down_m_s = down_m_s
+        self.yawspeed_deg_s = yawspeed_deg_s
 
 class OffboardAlgorithm:
     commands = []
@@ -65,12 +71,12 @@ def parse_args():
     parser = argparse.ArgumentParser()
     args = [
         ["--visiontest", "Run vision tests"],
-        ["--sim", "Run simulation"],
+        ["--sim", "Run simulation"], # done
         ["--local", "Run on local server"],
         ["--serverless", "Run preset mission without server connection"],
-        ["--test", "Run flight tests"],
+        ["--test", "Run flight tests"], # done
         ["--nocamera", "Run without camera"],
-        ["--novision", "Run without computer vision"],
+        ["--novision", "Run without computer vision"], # done
         ["--nogps", "Run without gps (dangerous)"]
     ]
     for arg in args:

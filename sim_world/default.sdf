@@ -41,9 +41,5 @@
     <include>
       <uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/MaleVisitorPhone</uri>
     </include>
-    <include>
-      <pose>-3 2 0 0 0 0</pose>
-      <uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/ground_station</uri>
-    </include>
   </world>
 </sdf>

@@ -76,7 +76,7 @@ class Pilot:
         self.Drone = Drone
         self.params = Params()
         self.config = config
-
+        
         asyncio.ensure_future(self.monitor(camera=camera))
         self.Logger = logger.Logger(Pilot=self)
         if not config.serverless: self.ServerHandler = server_handler.ServerHandler(Pilot=self)
