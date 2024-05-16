@@ -71,22 +71,18 @@ class SimVideo():
 
 class Tracker:
     cv_box = [0,0,0,0]
-    tracker = None
-
+    tracker = False
     def track(self, net_box, frame):
-        if not net_box:
-            if self.tracker != None:
+        if net_box == False:
+            if self.tracker != False:
                 ok, bbox = self.tracker.update(frame)
                 if ok == True:
                     (x, y, w, h) = [int(v) for v in bbox]
                     self.cv_box = [x, y, x+w, y+h]
-                    print("UPDATE TRACKER")
                 else:
                     self.cv_box = [0,0,0,0]
-                    self.tracker = None
-                    print("NOTHING TO TRACK")
+                    self.tracker = False
         else:
-            print("INIT TRACKER")
             self.tracker = cv.legacy.TrackerMedianFlow_create()
             self.tracker.init(frame, (
                 net_box[0],
@@ -147,7 +143,7 @@ def view_camera_video(child_conn, config):
                     tracker.cv_box[3],
                     frame
                 ])
-
+                
     else:
         import jetson_interface
         import jetson_utils
