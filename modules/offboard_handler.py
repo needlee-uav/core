@@ -5,9 +5,10 @@ from math import sqrt
 class OffboardHandler:
     def __init__(self, Pilot):
         self.Pilot = Pilot
-        asyncio.ensure_future(self.handle_follow())
         asyncio.ensure_future(self.handle_offboard())
-
+        if not Pilot.config.nocapturing:
+            asyncio.ensure_future(self.handle_capture())
+            
     async def handle_offboard(self):
         while True:
             if self.Pilot.params.stage.offboard_mode:
@@ -29,7 +30,8 @@ class OffboardHandler:
         await self.Pilot.Drone.offboard.set_velocity_body(
                 VelocityBodyYawspeed(0.0, 0.0, 0.0, 0.0))
         
-    async def handle_follow(self):
+    async def handle_capture(self):
+        self.Pilot.Logger.log_debug("OFFBOARD: enable capturing")
         while True:
             if self.Pilot.params.stage.name == "CAPTURE":
                 await self.Pilot.Drone.offboard.set_velocity_body(
@@ -37,7 +39,7 @@ class OffboardHandler:
                 await self.Pilot.Drone.offboard.start()
                 self.Pilot.Logger.log_debug("CAPTURE: start")
                 while True:
-                    print("FOLLOW!")
+                    print("CAPTURE!")
                     await asyncio.sleep(1)
             await asyncio.sleep(0.1)
 

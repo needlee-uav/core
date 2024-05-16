@@ -18,8 +18,8 @@ class StageHandler:
                 self.switch_stage(stage="TEST" if self.Pilot.params.stage.test.run else "ROUTE")
             elif self.stage.name == "PREARM" or self.stage.name == "TAKEOFF":
                 pass
-            elif self.Pilot.params.box[0] != 0 and self.stage.name == "ROUTE":
-                self.target.target_detected == True
+            elif self.Pilot.params.box[0] != 0 and self.stage.name == "ROUTE" and not self.Pilot.config.nocapturing:
+                self.target.target_detected = True
                 self.switch_stage(stage="CAPTURE")
             elif not self.target.target_detected and self.stage.name == "CAPTURE":
                self.switch_stage(stage="ROUTE")

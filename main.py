@@ -41,6 +41,7 @@ class Config:
     def __init__(self):
         config_json = load_config()
         args = parse_args()
+        self.nocapturing = args.nocapturing
         self.vision_test = args.visiontest
         self.drone_id = config_json["server"]["drone_id"]
         self.sim = args.sim
@@ -76,6 +77,7 @@ def parse_args():
         ["--serverless", "Run preset mission without server connection"],
         ["--test", "Run flight tests"], # done
         ["--nocamera", "Run without camera"], # done
+        ["--nocapturing", "Run vision without offboard target capturing"], # done
         ["--novision", "Run without computer vision"], # done
         ["--nogps", "Run without gps (dangerous)"]
     ]
