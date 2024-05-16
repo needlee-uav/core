@@ -69,6 +69,32 @@ class SimVideo():
         self._frame = new_frame
         return self.Gst.FlowReturn.OK
 
+class Tracker:
+    cv_box = [0,0,0,0]
+    tracker = None
+
+    def track(self, net_box, frame):
+        if not net_box:
+            if self.tracker != None:
+                ok, bbox = self.tracker.update(frame)
+                if ok == True:
+                    (x, y, w, h) = [int(v) for v in bbox]
+                    self.cv_box = [x, y, x+w, y+h]
+                    print("UPDATE TRACKER")
+                else:
+                    self.cv_box = [0,0,0,0]
+                    self.tracker = None
+                    print("NOTHING TO TRACK")
+        else:
+            print("INIT TRACKER")
+            self.tracker = cv.legacy.TrackerMedianFlow_create()
+            self.tracker.init(frame, (
+                net_box[0],
+                net_box[1],
+                net_box[2]-net_box[0],
+                net_box[3]-net_box[1]
+            ))
+
 def view_camera_video(child_conn, config):
     img = np.zeros([config.vision.width, config.vision.height, 3],dtype=np.uint8)
     img.fill(255)
@@ -89,6 +115,7 @@ def view_camera_video(child_conn, config):
                 frame = video.frame()
                 child_conn.send([0, 0, 0, 0, frame])
 
+        tracker = Tracker()
         while True:
             if not video.frame_available():
                 continue
@@ -103,13 +130,23 @@ def view_camera_video(child_conn, config):
             for i in range(detections.shape[2]):
                 confidence = detections[0, 0, i, 2]
                 if confidence > 0.3 and int(detections[0, 0, i, 1]) == classPerson:
-                    x1 = int(detections[0, 0, i, 3] * width) 
+                    x1 = int(detections[0, 0, i, 3] * width)
                     y1 = int(detections[0, 0, i, 4] * height)
                     x2 = int(detections[0, 0, i, 5] * width)
                     y2 = int(detections[0, 0, i, 6] * height)
+                    tracker.track([x1, y1, x2, y2], frame)
                     child_conn.send([x1, y1, x2, y2, frame])
                     sent = True
-            if not sent: child_conn.send([0, 0, 0, 0, frame])
+                
+            if not sent:
+                tracker.track(False, frame)
+                child_conn.send([
+                    tracker.cv_box[0],
+                    tracker.cv_box[1],
+                    tracker.cv_box[2],
+                    tracker.cv_box[3],
+                    frame
+                ])
 
     else:
         import jetson_interface

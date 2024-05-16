@@ -3,7 +3,7 @@ import math
 from mavsdk.offboard import (VelocityBodyYawspeed)
 
 class Instructions:
-    forward_m_s: float = 2.0
+    forward_m_s: float = 1.0
     right_m_s: float = 0.0
     down_m_s: float = 0.0
     yawspeed_deg_s: float = 0.0
@@ -69,6 +69,7 @@ class RouteHandler:
         while self.instructions.yaw_diff == 0.0:
             await asyncio.sleep(1)
         while abs(self.instructions.yaw_diff) > 2 or abs(self.instructions.down_m_s) > 0.4:
+            if self.stage.name == "CAPTURE": break
             yaw_speed = self.instructions.yawspeed_deg_s
             if abs(yaw_speed) < 6:
                 yaw_speed = 6 if yaw_speed > 0 else -6

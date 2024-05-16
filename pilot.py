@@ -98,7 +98,7 @@ class Pilot:
             if config.test_mode:
                 self.params.stage.test.run = True
                 self.TestScenariosHandler = test_scenarios_handler.TestScenariosHandler(Pilot=self)
-
+        # self.FollowHandler = offboard_handler.FollowHandler(Pilot=self)
     async def monitor(self, camera):
         while True:
             self.params.img = camera.img

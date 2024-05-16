@@ -64,7 +64,7 @@ pip3 install simple-websocket --no-cache-dir
 pip3 install python-socketio[client] --no-cache-dir
 
 pip3 install numpy==1.19.4 --no-cache-dir
-pip3 install opencv-python --no-cache-dir
+pip3 install opencv-contrib-python==4.5.5.62 --no-cache-dir
 ```
 
 ### Troubleshooting

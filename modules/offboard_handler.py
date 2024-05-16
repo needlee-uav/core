@@ -1,6 +1,7 @@
 import asyncio
 from mavsdk.offboard import (VelocityBodyYawspeed)
 from math import sqrt
+import cv2 as cv
 
 class OffboardHandler:
     def __init__(self, Pilot):
@@ -27,6 +28,24 @@ class OffboardHandler:
         self.Pilot.Logger.log_debug("OFFBOARD: flight algorithm finished")
         await self.Pilot.Drone.offboard.set_velocity_body(
                 VelocityBodyYawspeed(0.0, 0.0, 0.0, 0.0))
+
+class FollowHandler:
+    def __init__(self, Pilot):
+        self.Pilot = Pilot
+        self.area = [0,0,0,0]
+        self.tracker = cv.legacy.TrackerMedianFlow_create()
+        asyncio.ensure_future(self.handle_follow())
+
+    async def handle_follow(self):
+        while True:
+            if self.Pilot.params.box[0] != 0 and self.Pilot.params.stage.name != "CAPTURE":
+                self.area = self.Pilot.params.box
+                self.Pilot.params.target.target_detected == True
+                await self.Pilot.Drone.offboard.set_velocity_body(
+                    VelocityBodyYawspeed(0.0, 0.0, 0.0, 0.0))
+                await self.Pilot.Drone.offboard.start()
+                self.Pilot.Logger.log_debug("CAPTURE: start")
+            await asyncio.sleep(0.1)
 
 
     # async def goto_target(self, Drone, VisionHandler, SensorsHandler):
