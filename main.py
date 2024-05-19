@@ -6,7 +6,7 @@ import asyncio
 from mavsdk import System
 import pilot as pilot
 from multiprocessing import Process, Pipe
-from camera import view_camera_video
+from camera.camera import view_camera_video
 
 class OffboardComand:
     duration: float
@@ -36,6 +36,7 @@ class Position:
 class Camera:
     box = []
     img = []
+    confidence = 0
 
 class Config:
     def __init__(self):
@@ -112,7 +113,7 @@ async def run():
                 if health.is_global_position_ok and health.is_home_position_ok:
                     print("-- Global position state is good enough for flying.")
                     break
-
+                
     pilot.Pilot(Drone=Drone, config=config, camera=camera)
 
     if config.vision:
@@ -120,6 +121,7 @@ async def run():
             cam_data = parent_conn.recv()
             camera.box = cam_data[:4]
             camera.img = cam_data[4]
+            camera.confidence = cam_data[5]
             await asyncio.sleep(0.05)
     else:
         while True:

@@ -103,6 +103,7 @@ class Pilot:
         while True:
             self.params.img = camera.img
             self.params.box = camera.box
+            self.params.target.confidence = camera.confidence
             await asyncio.sleep(0.01)
 
     def run_vision_test(self):
