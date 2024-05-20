@@ -1,7 +1,7 @@
 import cv2 as cv
 import numpy as np
 import datetime
-from camera.sim_video import SimVideo
+from camera.sim_camera.sim_video import SimVideo
 
 def view_camera_video(child_conn, config):
     img = np.zeros([config.vision.width, config.vision.height, 3],dtype=np.uint8)
@@ -9,9 +9,15 @@ def view_camera_video(child_conn, config):
     novision = True if not config.vision.model else False
     
     if config.sim:
-        run_sim(novision, child_conn)
+        if config.vision_test != 0:
+            run_sim_sample(config.vision_test, child_conn)
+        else:
+            run_sim(novision, child_conn)
     else:
-        run_jetson(novision, config, child_conn)
+        if config.vision_test != 0:
+            run_jetson_sample(config.vision_test, child_conn)
+        else:
+            run_jetson(novision, config, child_conn)
 
 class Tracker:
     cv_box = [0,0,0,0]
@@ -37,8 +43,8 @@ class Tracker:
 
 def run_sim(novision, child_conn):
     net = None
-    prototxt = "./camera/MobileNetSSD_deploy.prototxt"
-    caffe_model = "./camera/MobileNetSSD_deploy.caffemodel"
+    prototxt = "./camera/sim_camera/MobileNetSSD_deploy.prototxt"
+    caffe_model = "./camera/sim_camera/MobileNetSSD_deploy.caffemodel"
     classPerson = 15
     if not novision:
         net = cv.dnn.readNetFromCaffe(prototxt, caffe_model)
@@ -82,14 +88,52 @@ def run_sim(novision, child_conn):
                 frame,
                 0
             ])
-        # cv.imshow('window', frame)
-        # if cv.waitKey(10) & 0xFF == ord('q'): break
+
+def run_sim_sample(sample_num, child_conn):
+    prototxt = "./camera/sim_camera/MobileNetSSD_deploy.prototxt"
+    caffe_model = "./camera/sim_camera/MobileNetSSD_deploy.caffemodel"
+    classPerson = 15
+    net = cv.dnn.readNetFromCaffe(prototxt, caffe_model)
+
+    file_path = f"./camera/sim_camera/samples/{sample_num}.mp4"
+    cap = cv.VideoCapture(file_path)
+    
+    tracker = Tracker()
+    while True:
+        ret, frame = cap.read()
+        if ret:
+            w = frame.shape[1] 
+            h = frame.shape[0]
+            blob = cv.dnn.blobFromImage(frame, scalefactor = 1/127.5, size = (w, h), mean = (127.5, 127.5, 127.5), swapRB=True, crop=False)
+            net.setInput(blob)
+            detections = net.forward()
+            sent = False
+            for i in range(detections.shape[2]):
+                confidence = detections[0, 0, i, 2]
+                if confidence > 0.3 and int(detections[0, 0, i, 1]) == classPerson:
+                    x1 = int(detections[0, 0, i, 3] * w)
+                    y1 = int(detections[0, 0, i, 4] * h)
+                    x2 = int(detections[0, 0, i, 5] * w)
+                    y2 = int(detections[0, 0, i, 6] * h)
+                    tracker.track([x1, y1, x2, y2], frame)
+                    child_conn.send([x1, y1, x2, y2, frame, confidence])
+                    sent = True
+            if not sent:
+                tracker.track(False, frame)
+                child_conn.send([
+                    tracker.cv_box[0],
+                    tracker.cv_box[1],
+                    tracker.cv_box[2],
+                    tracker.cv_box[3],
+                    frame,
+                    0
+                ])
 
 def run_jetson(novision, config, child_conn):
     #TODO add tracker
     import jetson_interface
     import jetson_utils
-        
+
     camera = jetson_utils.gstCamera(config.vision.width, config.vision.height, config.vision.camera_address)
     if novision:
         while True:
@@ -113,4 +157,43 @@ def run_jetson(novision, config, child_conn):
                     sent = True
         if not sent: child_conn.send([0, 0, 0, 0, frame, 0])
 
+def run_jetson_sample(sample_num, child_conn):
+    #TODO To jetson model
+    prototxt = "./camera/sim_camera/MobileNetSSD_deploy.prototxt"
+    caffe_model = "./camera/sim_camera/MobileNetSSD_deploy.caffemodel"
+    classPerson = 15
+    net = cv.dnn.readNetFromCaffe(prototxt, caffe_model)
 
+    file_path = f"./camera/sim_camera/samples/{sample_num}.mp4"
+    cap = cv.VideoCapture(file_path)
+    
+    tracker = Tracker()
+    while True:
+        ret, frame = cap.read()
+        if ret:
+            w = frame.shape[1] 
+            h = frame.shape[0]
+            blob = cv.dnn.blobFromImage(frame, scalefactor = 1/127.5, size = (w, h), mean = (127.5, 127.5, 127.5), swapRB=True, crop=False)
+            net.setInput(blob)
+            detections = net.forward()
+            sent = False
+            for i in range(detections.shape[2]):
+                confidence = detections[0, 0, i, 2]
+                if confidence > 0.3 and int(detections[0, 0, i, 1]) == classPerson:
+                    x1 = int(detections[0, 0, i, 3] * w)
+                    y1 = int(detections[0, 0, i, 4] * h)
+                    x2 = int(detections[0, 0, i, 5] * w)
+                    y2 = int(detections[0, 0, i, 6] * h)
+                    tracker.track([x1, y1, x2, y2], frame)
+                    child_conn.send([x1, y1, x2, y2, frame, confidence])
+                    sent = True
+            if not sent:
+                tracker.track(False, frame)
+                child_conn.send([
+                    tracker.cv_box[0],
+                    tracker.cv_box[1],
+                    tracker.cv_box[2],
+                    tracker.cv_box[3],
+                    frame,
+                    0
+                ])

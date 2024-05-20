@@ -9,14 +9,15 @@
         "local_url": "http://0.0.0.0:8080/console",
         "drone_id": "UAV-1234"
     },
-
+    "vision_test": {
+        "camera_address": "tcp://127.0.0.1:8888"
+    },
     "vision": {
         "camera_address": "tcp://127.0.0.1:8888",
         "width": 320,
         "height": 320,
         "model": "yolov5nu.onnx"
     },
-
     "jetson_vision": {
         "camera_address": "/dev/video0",
         "width": 640,

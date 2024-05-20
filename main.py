@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+import cv2 as cv
 import json
 import argparse
 import asyncio
@@ -83,7 +83,10 @@ def parse_args():
         ["--nogps", "Run without gps (dangerous)"]
     ]
     for arg in args:
-        parser.add_argument(arg[0], help=arg[1], action="store_true")
+        if arg[0] == "--visiontest":
+            parser.add_argument(arg[0], help=arg[1], type=int, default=0)
+        else:
+            parser.add_argument(arg[0], help=arg[1], action="store_true")
     return parser.parse_args()
 
 async def run():
@@ -97,8 +100,9 @@ async def run():
         p = Process(target=view_camera_video, args=(child_conn, config, ))
         p.start()
 
+    print(config.vision_test)
     if config.vision_test:
-        print("Running vision tests")
+        print("Vision test, nothing happends")
     else:
         Drone = System()
         await Drone.connect(system_address=config.system_address)
@@ -114,7 +118,20 @@ async def run():
                     print("-- Global position state is good enough for flying.")
                     break
                 
-    pilot.Pilot(Drone=Drone, config=config, camera=camera)
+        pilot.Pilot(Drone=Drone, config=config, camera=camera)
+
+    if config.vision_test:
+        while True:
+            cam_data = parent_conn.recv()
+            box = cam_data[:4]
+            frame = cam_data[4]
+            confidence = cam_data[5]
+            print(confidence)
+            print(box)
+            cv.rectangle(frame, (box[0], box[1]), (box[2], box[3]),(0, 255, 0))
+            cv.imshow("frame", frame)
+            if cv.waitKey(1) >= 0:  
+                break
 
     if config.vision:
         while True:
