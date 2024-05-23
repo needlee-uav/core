@@ -1,7 +1,7 @@
 import cv2 as cv
 import numpy as np
 import datetime
-from camera.sim_camera.sim_video import SimVideo
+from camera.sim_video import SimVideo
 
 class Target:
     detected = False
