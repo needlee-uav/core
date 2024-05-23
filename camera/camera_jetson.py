@@ -4,7 +4,7 @@ import datetime
 from camera.camera import Tracker, Target
 
 class JetsonModel:
-    import jetson_interface
+    import jetson_inference
     import jetson_utils
 
     def __init__(self, config, child_conn):
@@ -15,7 +15,7 @@ class JetsonModel:
         self.classPerson = 1
         self.child_conn = child_conn
         self.camera = self.jetson_utils.gstCamera(config.vision.width, config.vision.height, config.vision.camera_address)
-        self.model = self.jetson_interface.detectNet(config.vision.model, threshold=0.5)
+        self.model = self.jetson_inference.detectNet(config.vision.model, threshold=0.5)
         self.tracker = Tracker()
         self.target = Target()
 
