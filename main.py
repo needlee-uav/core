@@ -4,7 +4,8 @@ import json
 import argparse
 import asyncio
 from mavsdk import System
-import pilot as pilot
+import pilot
+# import pilot_test
 from multiprocessing import Process, Pipe
 from camera.camera import view_camera_video
 
@@ -100,9 +101,6 @@ async def run():
         p = Process(target=view_camera_video, args=(child_conn, config, ))
         p.start()
 
-    print(config.vision_test)
-    if config.vision_test:
-        print("Vision test, nothing happends")
     else:
         Drone = System()
         await Drone.connect(system_address=config.system_address)
@@ -130,7 +128,7 @@ async def run():
             print(box)
             cv.rectangle(frame, (box[0], box[1]), (box[2], box[3]),(0, 255, 0))
             cv.imshow("frame", frame)
-            if cv.waitKey(1) >= 0:  
+            if cv.waitKey(1) >= 0:
                 break
 
     if config.vision:
