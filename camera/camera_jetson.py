@@ -9,6 +9,7 @@ class JetsonModel:
 
     def __init__(self, config, child_conn):
         #TODO w/h from config
+        self.config = config
         self.w = 640
         self.h = 360
         self.classPerson = 1
@@ -26,14 +27,31 @@ class JetsonModel:
                 frame = cv.cvtColor(aimg.astype(np.uint8), cv.COLOR_RGBA2BGR)
                 self.child_conn.send([0, 0, 0, 0, frame, 0])
 
-        while True:
-            img, width, height = self.camera.CaptureRGBA()
-            aimg = self.jetson_utils.cudaToNumpy(img, width, height, 4)
-            frame = cv.cvtColor(aimg.astype(np.uint8), cv.COLOR_RGBA2BGR)
-            detections = self.model.Detect(img, width, height)
-            self.process_detections(detections)
-            self.send(frame)
+        if self.config.vision_test == 0:
+            while True:
+                img, width, height = self.camera.CaptureRGBA()
+                aimg = self.jetson_utils.cudaToNumpy(img, width, height, 4)
+                frame = cv.cvtColor(aimg.astype(np.uint8), cv.COLOR_RGBA2BGR)
+                detections = self.model.Detect(img, width, height)
+                self.process_detections(detections)
+                self.send(frame)
+        else:
+            file_path = f"./camera/sim_camera/samples/{self.config.vision_test}.mp4"
+            self.cap = cv.VideoCapture(file_path)
+            self.read_frame = self.read_cap
+            while True:
+                frame = self.read_frame()
+                detections = self.model.Detect(frame, self.w, self.h)
+                self.process_detections(detections)
+                self.send(frame)
 
+    def read_cap(self):
+        ret, frame = self.cap.read()
+        if ret:
+            return frame
+        else:
+            return []
+        
     def send(self, frame):
         if self.target.detected == False:
             self.tracker.track(
