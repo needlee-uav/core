@@ -4,7 +4,6 @@ import datetime
 from camera.sim_video import SimVideo
 from camera.camera import Tracker, Target
 
-
 class SimModel:
     def __init__(self, config, child_conn):
         #TODO w/h from config
@@ -29,6 +28,16 @@ class SimModel:
             self.cap = cv.VideoCapture(file_path)
             self.read_frame = self.read_cap
 
+    def run(self):
+        while True:
+            frame = self.read_frame()
+            if len(frame) > 0:
+                blob = cv.dnn.blobFromImage(frame, scalefactor = 1/127.5, size = (self.w, self.h), mean = (127.5, 127.5, 127.5), swapRB=True, crop=False)
+                self.net.setInput(blob)
+                detections = self.net.forward()
+                self.process_detections(detections)
+                self.send(frame)
+
     def read_cap(self):
         ret, frame = self.cap.read()
         if ret:
@@ -42,43 +51,36 @@ class SimModel:
             return frame
         else:
             return []
-
-    def run(self):
-        while True:
-            frame = self.read_frame()
-            if len(frame) > 0:
-                blob = cv.dnn.blobFromImage(frame, scalefactor = 1/127.5, size = (self.w, self.h), mean = (127.5, 127.5, 127.5), swapRB=True, crop=False)
-                self.net.setInput(blob)
-                detections = self.net.forward()
-                self.process_detections(detections)
-                if self.target.detected == False:
-                    self.tracker.track(
-                        [
-                            self.target.x1,
-                            self.target.y1,
-                            self.target.x2,
-                            self.target.y2
-                        ], 
-                        frame)
-                    
-                    self.child_conn.send([
-                        self.target.x1,
-                        self.target.y1,
-                        self.target.x2,
-                        self.target.y2,
-                        frame, 
-                        self.target.confidence
-                    ])
-                else:
-                    self.tracker.track(False, frame)
-                    self.child_conn.send([
-                        self.tracker.cv_box[0],
-                        self.tracker.cv_box[1],
-                        self.tracker.cv_box[2],
-                        self.tracker.cv_box[3],
-                        frame,
-                        0
-                    ])
+        
+    def send(self, frame):
+        if self.target.detected == False:
+            self.tracker.track(
+                [
+                    self.target.x1,
+                    self.target.y1,
+                    self.target.x2,
+                    self.target.y2
+                ], 
+                frame)
+            
+            self.child_conn.send([
+                self.target.x1,
+                self.target.y1,
+                self.target.x2,
+                self.target.y2,
+                frame, 
+                self.target.confidence
+            ])
+        else:
+            self.tracker.track(False, frame)
+            self.child_conn.send([
+                self.tracker.cv_box[0],
+                self.tracker.cv_box[1],
+                self.tracker.cv_box[2],
+                self.tracker.cv_box[3],
+                frame,
+                0
+            ])
 
     def process_detections(self, detections):
         for i in range(detections.shape[2]):
