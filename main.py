@@ -130,7 +130,8 @@ async def run():
             cv.imshow("frame", frame)
             if cv.waitKey(1) >= 0:
                 break
-
+            await asyncio.sleep(0.05)
+ 
     if config.vision:
         while True:
             cam_data = parent_conn.recv()
