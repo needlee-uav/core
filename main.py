@@ -73,7 +73,7 @@ def load_config():
 def parse_args():
     parser = argparse.ArgumentParser()
     args = [
-        ["--visiontest", "Run vision tests"],
+        ["--visiontest", "Run vision tests"], # done
         ["--sim", "Run simulation"], # done
         ["--local", "Run on local server"],
         ["--serverless", "Run preset mission without server connection"],
@@ -100,8 +100,8 @@ async def run():
         parent_conn,child_conn = Pipe()
         p = Process(target=view_camera_video, args=(child_conn, config, ))
         p.start()
-
-    else:
+        
+    if config.vision_test == 0:
         Drone = System()
         await Drone.connect(system_address=config.system_address)
         print("Waiting for drone to connect...")
@@ -118,7 +118,7 @@ async def run():
                 
         pilot.Pilot(Drone=Drone, config=config, camera=camera)
 
-    if config.vision_test:
+    else:
         while True:
             cam_data = parent_conn.recv()
             box = cam_data[:4]
