@@ -1,14 +1,13 @@
 import cv2 as cv
 import numpy as np
 import datetime
+import time
 from camera.sim_video import SimVideo
 from camera.camera import Tracker, Target
 
 class SimModel:
     def __init__(self, config, child_conn):
-        #TODO w/h from config
-        self.w = 640
-        self.h = 360
+        
         self.net = False
         self.child_conn = child_conn
 
@@ -28,11 +27,21 @@ class SimModel:
             self.cap = cv.VideoCapture(file_path)
             self.read_frame = self.read_cap
 
+        #TODO w/h from config
+        # self.w = frame.shape[1]
+        # self.h = frame.shape[0] 
+
     def run(self):
+        while len(self.read_frame()) == 0:
+            time.sleep(1)
+        frame = self.read_frame()
+        self.w = frame.shape[1]
+        self.h = frame.shape[0]
         while True:
             frame = self.read_frame()
             if len(frame) > 0:
-                blob = cv.dnn.blobFromImage(frame, scalefactor = 1/127.5, size = (self.w, self.h), mean = (127.5, 127.5, 127.5), swapRB=True, crop=False)
+                # Blob is created at min resolution during simulation
+                blob = cv.dnn.blobFromImage(frame, scalefactor = 1/127.5, size = (640, 360), mean = (127.5, 127.5, 127.5), swapRB=True, crop=False)
                 self.net.setInput(blob)
                 detections = self.net.forward()
                 self.process_detections(detections)
