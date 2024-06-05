@@ -8,36 +8,8 @@ import pilot
 # import pilot_test
 from multiprocessing import Process, Pipe
 from camera.camera import view_camera_video
+from data_classes import OffboardComand, OffboardAlgorithm, Position, Camera
 
-class OffboardComand:
-    duration: float
-    forward_m_s: float
-    right_m_s: float
-    down_m_s: float
-    yawspeed_deg_s: float
-    def __init__(self, duration, forward_m_s, right_m_s, down_m_s, yawspeed_deg_s):
-        self.duration = duration
-        self.forward_m_s = forward_m_s
-        self.right_m_s = right_m_s
-        self.down_m_s = down_m_s
-        self.yawspeed_deg_s = yawspeed_deg_s
-
-class OffboardAlgorithm:
-    commands = []
-
-class Position:
-    lat: float
-    lon: float
-    alt: float
-    def __init__(self, lat, lon, alt):
-        self.lat = lat
-        self.lon = lon
-        self.alt = alt if alt else None
-
-class Camera:
-    box = []
-    img = []
-    confidence = 0
 
 class Config:
     def __init__(self):
@@ -138,6 +110,10 @@ async def run():
             camera.box = cam_data[:4]
             camera.img = cam_data[4]
             camera.confidence = cam_data[5]
+            cv.rectangle(camera.img, (camera.box[0], camera.box[1]), (camera.box[2], camera.box[3]),(0, 255, 0))
+            cv.imshow("frame", camera.img)
+            if cv.waitKey(1) >= 0:
+                break
             await asyncio.sleep(0.05)
     else:
         while True:

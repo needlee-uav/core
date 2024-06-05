@@ -1,0 +1,16 @@
+<?xml version="1.0" ?>
+<sdf version="1.5">
+  <model name="woman">
+    <pose>0 0 0 0 0 0</pose>
+    <static>true</static>
+    <link name="link">
+      <visual name="visual">
+        <geometry>
+          <mesh>
+            <uri>model://woman/meshes/rp_mei_posed_001_100k.dae</uri>
+          </mesh>
+	</geometry>
+      </visual>
+    </link>
+  </model>
+</sdf>

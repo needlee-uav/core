@@ -9,7 +9,7 @@ import modules.server_handler as server_handler
 import modules.takeoff_handler as takeoff_handler
 import modules.emergency_handler as emergency_handler
 import test_scenarios.test_scenarios_handler as test_scenarios_handler
-from main import OffboardAlgorithm, Position
+from data_classes import OffboardAlgorithm, Position
 
 class Test():
     run: bool = False

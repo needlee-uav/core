@@ -37,11 +37,12 @@ class SimModel:
         frame = self.read_frame()
         self.w = frame.shape[1]
         self.h = frame.shape[0]
+        print(self.h)
         while True:
             frame = self.read_frame()
             if len(frame) > 0:
                 # Blob is created at min resolution during simulation
-                blob = cv.dnn.blobFromImage(frame, scalefactor = 1/127.5, size = (640, 360), mean = (127.5, 127.5, 127.5), swapRB=True, crop=False)
+                blob = cv.dnn.blobFromImage(frame, scalefactor = 1/127.5, size = (640, 640), mean = (127.5, 127.5, 127.5), swapRB=True, crop=False)
                 self.net.setInput(blob)
                 detections = self.net.forward()
                 self.process_detections(detections)
