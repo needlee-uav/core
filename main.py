@@ -5,10 +5,9 @@ import argparse
 import asyncio
 from mavsdk import System
 import pilot
-# import pilot_test
 from multiprocessing import Process, Pipe
 from camera.camera import view_camera_video
-from data_classes import OffboardComand, OffboardAlgorithm, Position, Camera
+from data_classes import Camera
 
 
 class Config:
@@ -110,10 +109,6 @@ async def run():
             camera.box = cam_data[:4]
             camera.img = cam_data[4]
             camera.confidence = cam_data[5]
-            cv.rectangle(camera.img, (camera.box[0], camera.box[1]), (camera.box[2], camera.box[3]),(0, 255, 0))
-            cv.imshow("frame", camera.img)
-            if cv.waitKey(1) >= 0:
-                break
             await asyncio.sleep(0.05)
     else:
         while True:

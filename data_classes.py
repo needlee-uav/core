@@ -27,3 +27,64 @@ class Camera:
     box = []
     img = []
     confidence = 0
+
+
+class Test():
+    run: bool = False
+    id: int = 0
+
+class Stage:
+    test: Test = Test()
+    ready: bool = False
+    in_air: bool = False
+    emergency: bool = False
+    emergency_data: dict = None
+    name = "PREARM"
+    offboard_mode = False
+
+class Sensors:
+    ready = False
+    position = Position(0.0, 0.0, 0.0)
+    heading = 0.0
+    pitch = 0.0
+    roll = 0.0
+    velocity_down_m_s = 0.0
+
+class Server:
+    connected = False
+    enable_camera: bool = False
+
+
+class Route:
+    route_finished = False
+    point_reached = False
+    point_i = -1
+    points = []
+    target_point = None
+    checkpoint = None
+    home = None
+
+class Offboard:
+    algo: OffboardAlgorithm = None
+    grid_yaw: bool = False
+    target_coords: Position = None
+    yaw_diff: float = 0.0
+    distance: float = 0.0
+
+class Target:
+    target_coords: Position = None
+    target_distance: float = 0.0
+    confidence: float = 0.0
+    target_detected: bool = False
+    target_captured: bool = False
+
+class Params:
+    box = []
+    img = []
+    debug_log = []
+    stage: Stage = Stage()
+    sensors: Sensors = Sensors()
+    server: Server = Server()
+    route: Route = Route()
+    offboard: Offboard = Offboard()
+    target: Target = Target()

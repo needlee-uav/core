@@ -27,22 +27,18 @@ class SimModel:
             self.cap = cv.VideoCapture(file_path)
             self.read_frame = self.read_cap
 
-        #TODO w/h from config
-        # self.w = frame.shape[1]
-        # self.h = frame.shape[0] 
-
     def run(self):
         while len(self.read_frame()) == 0:
             time.sleep(1)
         frame = self.read_frame()
-        self.w = frame.shape[1]
-        self.h = frame.shape[0]
+        self.w = int(frame.shape[1])
+        self.h = int(frame.shape[0])
         print(self.h)
+        print(self.w)
         while True:
             frame = self.read_frame()
             if len(frame) > 0:
-                # Blob is created at min resolution during simulation
-                blob = cv.dnn.blobFromImage(frame, scalefactor = 1/127.5, size = (640, 640), mean = (127.5, 127.5, 127.5), swapRB=True, crop=False)
+                blob = cv.dnn.blobFromImage(frame, scalefactor = 1/127.5, size = (self.w, self.h), mean = (127.5, 127.5, 127.5), swapRB=True, crop=False)
                 self.net.setInput(blob)
                 detections = self.net.forward()
                 self.process_detections(detections)
