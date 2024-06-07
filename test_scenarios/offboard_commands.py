@@ -1,5 +1,5 @@
 import asyncio
-from main import OffboardAlgorithm, OffboardComand
+from data_classes import OffboardAlgorithm, OffboardComand
 
 class OffboardCommandsScenario:
     Logger = None

@@ -2,7 +2,7 @@ import socketio, time
 import threading
 import cv2
 import base64
-from main import Position
+from data_classes import Position
 
 class ServerHandler:
     def __init__(self, Pilot):

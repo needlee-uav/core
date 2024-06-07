@@ -91,9 +91,8 @@ class SimModel:
     def process_detections(self, detections):
         for i in range(detections.shape[2]):
             confidence = detections[0, 0, i, 2]
-            if confidence > 0 and confidence > self.target.confidence: 
-                self.target.confidence = confidence
             if confidence > 0.3 and int(detections[0, 0, i, 1]) == self.classPerson:
+                self.target.confidence = round(confidence, 2)
                 self.target.x1 = int(detections[0, 0, i, 3] * self.w)
                 self.target.y1 = int(detections[0, 0, i, 4] * self.h)
                 self.target.x2 = int(detections[0, 0, i, 5] * self.w)

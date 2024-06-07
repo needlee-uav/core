@@ -3,7 +3,7 @@ import math
 from mavsdk.offboard import (VelocityBodyYawspeed)
 
 class Instructions:
-    forward_m_s: float = 1.0
+    forward_m_s: float = 0.7
     right_m_s: float = 0.0
     down_m_s: float = 0.0
     yawspeed_deg_s: float = 0.0
@@ -60,7 +60,7 @@ class RouteHandler:
     async def handle_alt(self):
         while True:
             if self.stage.name == "ROUTE":
-                target_alt = 6
+                target_alt = 5
                 alt_diff = self.sensors.position.alt - target_alt
                 self.instructions.down_m_s = alt_diff / 5
             await asyncio.sleep(0.05)
@@ -111,7 +111,7 @@ class RouteHandler:
         await self.update_target_point()
 
     def check_distance_to_point(self):
-        if self.gps_to_meters() < 1.5:
+        if self.gps_to_meters() < 2:
             self.route.point_reached = True
             print("ROUTE: point reached!")
 
