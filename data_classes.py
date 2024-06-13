@@ -1,5 +1,6 @@
 class OffboardComand:
-    duration: float
+    timeout = 0
+    duration = 0
     forward_m_s: float
     right_m_s: float
     down_m_s: float
@@ -10,9 +11,6 @@ class OffboardComand:
         self.right_m_s = right_m_s
         self.down_m_s = down_m_s
         self.yawspeed_deg_s = yawspeed_deg_s
-
-class OffboardAlgorithm:
-    commands = []
 
 class Position:
     lat: float
@@ -65,8 +63,8 @@ class Route:
     home = None
 
 class Offboard:
-    algo: OffboardAlgorithm = None
-    grid_yaw: bool = False
+    command: OffboardComand = None
+    busy: bool = True
     target_coords: Position = None
     yaw_diff: float = 0.0
     distance: float = 0.0

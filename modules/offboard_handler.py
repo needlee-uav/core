@@ -1,48 +1,58 @@
 import asyncio
+import datetime
 from mavsdk.offboard import (VelocityBodyYawspeed)
 from math import sqrt, copysign
 
 class OffboardHandler:
+    busy = False
     def __init__(self, Pilot):
         self.Pilot = Pilot
-        asyncio.ensure_future(self.handle_offboard())
-        if not Pilot.config.nocapturing:
+        if Pilot.config.capturing:
             asyncio.ensure_future(self.handle_capture())
-            
-    async def handle_offboard(self):
-        while True:
-            if self.Pilot.params.stage.offboard_mode:
-                await self.Pilot.Drone.offboard.set_velocity_body(
-                    VelocityBodyYawspeed(0.0, 0.0, 0.0, 0.0))
-                await self.Pilot.Drone.offboard.start()
-                self.Pilot.Logger.log_debug("OFFBOARD: start")
-                await self.offboard_algorithm()
-                self.Pilot.params.stage.offboard_mode = False
-            await asyncio.sleep(1)
-
-    async def offboard_algorithm(self):
-        self.Pilot.Logger.log_debug("OFFBOARD: run flight algorithm")
-        for command in self.Pilot.params.offboard.algo.commands:
-            await self.Pilot.Drone.offboard.set_velocity_body(
-                VelocityBodyYawspeed(command.forward_m_s, command.right_m_s, command.down_m_s, command.yawspeed_deg_s))
-            await asyncio.sleep(command.duration)
-        self.Pilot.Logger.log_debug("OFFBOARD: flight algorithm finished")
+    
+    async def start_offboard(self):
         await self.Pilot.Drone.offboard.set_velocity_body(
-                VelocityBodyYawspeed(0.0, 0.0, 0.0, 0.0))
+            VelocityBodyYawspeed(0.0, 0.0, 0.0, 0.0))
+        await self.Pilot.Drone.offboard.start()
+        self.Pilot.Logger.log_debug("OFFBOARD: start")
+        return
+
+    async def finish_offboard(self):
+        await self.Pilot.Drone.offboard.set_velocity_body(
+            VelocityBodyYawspeed(0.0, 0.0, 0.0, 0.0))
+        self.Pilot.Logger.log_debug("OFFBOARD: finish")
+        return
+
+    async def run_offboard_command(self, command):
+        timeout = datetime.datetime.now() + datetime.timedelta(0,command.duration) 
+        self.Pilot.Logger.log_debug("OFFBOARD: run command")
+        await self.Pilot.Drone.offboard.set_velocity_body(
+            VelocityBodyYawspeed(command.forward_m_s, command.right_m_s, command.down_m_s, command.yawspeed_deg_s))
+        while timeout > datetime.datetime.now():
+            if self.Pilot.params.stage.name == "CAPTURE":
+                self.Pilot.Logger.log_debug("OFFBOARD: cancel command on capturing")
+                self.busy = False
+                return
+            await asyncio.sleep(0.1)
+        self.Pilot.Logger.log_debug("OFFBOARD: finish command")
+        self.busy = False
+        return
         
     async def handle_capture(self):
         self.Pilot.Logger.log_debug("OFFBOARD: enable capturing")
         while True:
             if self.Pilot.params.stage.name == "CAPTURE" and self.Pilot.params.target.target_captured != True:
-                await self.Pilot.Drone.offboard.set_velocity_body(
-                    VelocityBodyYawspeed(0.0, 0.0, 0.0, 0.0))
-                await self.Pilot.Drone.offboard.start()
+                await self.start_offboard()
                 self.Pilot.Logger.log_debug("CAPTURE: start")
                 await asyncio.sleep(2)
                 await self.center_target()
-                while not self.Pilot.params.target.target_captured:
+                while not self.Pilot.params.target.target_captured and self.Pilot.params.target.target_detected:
+                    print(self.Pilot.params.target.target_captured)
+                    print(self.Pilot.params.target.target_detected)
                     await asyncio.sleep(1)
-
+                await self.Pilot.Drone.offboard.set_velocity_body(
+                    VelocityBodyYawspeed(0.0, 0.0, 0.0, 0.0))
+                self.Pilot.Logger.log_debug("CAPTURE: end")
             await asyncio.sleep(0.1)
 
     async def center_target(self):
@@ -52,6 +62,11 @@ class OffboardHandler:
         target_lost_count = 0
         previous = [0.0, 0.0, 0.0, 0.0]
         while True:
+            if self.Pilot.params.target.confidence > 0.7 and previous == [0,0,0,0]:
+                self.Pilot.params.target.target_captured = True
+                self.Pilot.params.target.target_detected = False
+                return
+            
             conf = self.Pilot.params.target.confidence
 
             if conf > best_conf:
@@ -75,8 +90,7 @@ class OffboardHandler:
                 target_lost_count += 1
                 print(f"target lost: {target_lost_count}")
             else:
-                await self.Pilot.Drone.offboard.set_velocity_body(
-                    VelocityBodyYawspeed(0.0, 0.0, 0.0, 0.0))
+                self.Pilot.params.target.target_detected = False
                 return
 
             await asyncio.sleep(1)

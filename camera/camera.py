@@ -3,13 +3,7 @@ import numpy as np
 import datetime
 from camera.sim_video import SimVideo
 
-class Target:
-    detected = False
-    x1 = 0
-    y1 = 0
-    x2 = 0
-    y2 = 0
-    confidence = 0
+
 
 class Tracker:
     cv_box = [0,0,0,0]
@@ -35,11 +29,10 @@ class Tracker:
             ))
 
 def view_camera_video(child_conn, config):
-    img = np.zeros([config.vision.width, config.vision.height, 3],dtype=np.uint8)
+    img = np.zeros([config.camera.width, config.camera.height, 3],dtype=np.uint8)
     img.fill(255)
-    novision = True if not config.vision.model else False
     
-    if config.sim:
+    if config.run == "sim":
         from camera.camera_sim import SimModel
         model = SimModel(child_conn=child_conn, config=config)
         model.run()

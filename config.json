@@ -1,7 +1,18 @@
 {
+    "sensor_limits": {
+        "alt": 8,
+        "roll": 10,
+        "pitch": 20
+    },
+
     "system_address": {
         "sim": "udp://:14540",
         "main": "serial:///dev/ttyACM0"
+    },
+    
+    "camera_address": {
+        "sim": "udp://127.0.0.1:5600",
+        "main": "/dev/video0"
     },
 
     "server": {
@@ -9,19 +20,24 @@
         "local_url": "http://0.0.0.0:8080/console",
         "drone_id": "UAV-1234"
     },
-    "vision_test": {
-        "camera_address": "tcp://127.0.0.1:8888"
-    },
-    "vision": {
-        "camera_address": "tcp://127.0.0.1:8888",
-        "width": 320,
-        "height": 320,
-        "model": "yolov5nu.onnx"
-    },
-    "jetson_vision": {
-        "camera_address": "/dev/video0",
-        "width": 640,
-        "height": 480,
-        "model": "ssd-mobilenet-v2"
+    
+    "camera_dims": {
+        "vision_test": {
+            "w": 640,
+            "h": 360
+        },
+        "sim" : {
+            "w": 640,
+            "h": 640
+        },
+        "main": {
+            "w": 1280,
+            "h": 640
+        }
+    }, 
+
+    "vision_model": {
+        "sim": "MobileNetSSD_deploy",
+        "main": "ssd-mobilenet-v2"
     }
 }

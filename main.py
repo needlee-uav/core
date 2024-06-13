@@ -5,63 +5,95 @@ from mavsdk import System
 import pilot
 from multiprocessing import Process, Pipe
 from camera.camera import view_camera_video
-from data_classes import Camera
+from camera.camera_raw import Camera
 from config import Config
+from modules.logger import Logger
+from modules.server_handler import ServerHandler
+from modules.emergency_handler import EmergencyHandler
 
 async def run():
-    print("====== NEEDLEE INIT ======")
-    config = Config()
-    Drone = False
+    # CONFIGURATE
+    drone = None
     camera = None
-    if config.vision:
-        camera = Camera()
+    server = None
+    config = Config()
+    logger = Logger()
+    logger.log_debug(config.config_print)
+    print(config.config_print)
+
+    # INIT SERVER
+    if config.server != "serverless":
+        server = ServerHandler(logger, config)
+
+    # INIT CAMERA
+    if config.cameramode != "none":
+        camera = Camera(config=config)
         parent_conn, child_conn = Pipe()
-        p = Process(target=view_camera_video, args=(child_conn, config, ))
+        p = Process(target=camera.run, args=(child_conn, ))
         p.start()
 
-    if config.vision_test == 0:
-        Drone = System()
-        await Drone.connect(system_address=config.system_address)
-        print("Waiting for drone to connect...")
-        async for state in Drone.core.connection_state():
+    # INIT MAVSDK & PILOT
+    if config.mode != "visiontest":
+        drone = System()
+        await drone.connect(system_address=config.system_address)
+        logger.log_debug("INIT: Waiting for drone to connect...")
+        async for state in drone.core.connection_state():
             if state.is_connected:
-                print(f"-- Connected to drone!")
+                logger.log_debug("INIT: Connected to drone!")
                 break
+        async for health in drone.telemetry.health():
+            if health.is_global_position_ok and health.is_home_position_ok:
+                logger.log_debug("INIT: Global position state is good enough for flying.")
+                break
+        emergency = EmergencyHandler(server, config.timeout, logger, drone, config.sensor_limits)
+        pilot.Pilot(drone=drone, config=config, camera=camera, logger=logger, server=server, emergency=emergency)
 
-        if not config.no_gps_mode:
-            async for health in Drone.telemetry.health():
-                if health.is_global_position_ok and health.is_home_position_ok:
-                    print("-- Global position state is good enough for flying.")
-                    break
-                
-        pilot.Pilot(Drone=Drone, config=config, camera=camera)
-
-    else:
+    # RUN LOOP
+    if config.mode == "visiontest":
+        font = cv.FONT_HERSHEY_SIMPLEX
         while True:
             cam_data = parent_conn.recv()
-            box = cam_data[:4]
-            frame = cam_data[4]
-            print(box)
-            print(f"confidence: {cam_data[5]}")
-            cv.rectangle(frame, (box[0], box[1]), (box[2], box[3]),(0, 255, 0))
-            cv.imshow("frame", frame)
+            detections = cam_data[1]
+            camera.box = [detections[1], detections[2], detections[3], detections[4]]
+            print(camera.box)
+            camera.frame = cam_data[0]
+            cv.putText(camera.frame, f"Conf: {detections[5]}", 
+                (40,40),
+                font,
+                1,
+                (255,255,255),
+                2,
+                2)
+            cv.rectangle(camera.frame, (detections[1], detections[2]), (detections[3], detections[4]),(0, 255, 0))
+            cv.imshow("frame", cam_data[0])
             if cv.waitKey(1) >= 0:
                 break
             await asyncio.sleep(0.05)
- 
-    if config.vision:
-        while True:
-            cam_data = parent_conn.recv()
-            camera.box = cam_data[:4]
-            camera.img = cam_data[4]
-            camera.confidence = cam_data[5]
-            print(camera.box)
-            print(f"confidence: {camera.confidence}")
-            await asyncio.sleep(0.05)
-    else:
-        while True:
+            
+    elif camera == None:
+        while True: 
             await asyncio.sleep(0.05)
 
+    elif config.cameramode == "stream":
+        while True:
+            cam_data = parent_conn.recv()
+            camera.frame = cam_data[0]
+            await asyncio.sleep(0.05)
+
+    elif config.cameramode == "vision":
+        while True:
+            cam_data = parent_conn.recv()
+            camera.frame = cam_data[0]
+            detections = cam_data[1]
+            camera.box = [detections[1], detections[2], detections[3], detections[4]]
+            camera.confidence = detections[5]
+            cv.rectangle(camera.frame, (detections[1], detections[2]), (detections[3], detections[4]),(0, 255, 0))
+            await asyncio.sleep(0.05)
+
+# RUN ASYNCIO
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
     loop.run_until_complete(run())
+
+
+

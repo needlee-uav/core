@@ -11,21 +11,21 @@ class SimModel:
         self.net = False
         self.child_conn = child_conn
 
-        if config.vision.model:
+        if config.camera.model:
             self.classPerson = 15
-            prototxt = "./camera/sim_camera/MobileNetSSD_deploy.prototxt"
-            caffe_model = "./camera/sim_camera/MobileNetSSD_deploy.caffemodel"
+            prototxt = f"./camera/sim_camera/{config.camera.model}.prototxt"
+            caffe_model = f"./camera/sim_camera/{config.camera.model}.caffemodel"
             self.net = cv.dnn.readNetFromCaffe(prototxt, caffe_model)
             self.tracker = Tracker()
             self.target = Target()
             
-        if config.vision_test == 0:
-            self.video = SimVideo()
-            self.read_frame = self.read_sim_video
-        else:
-            file_path = f"./camera/sim_camera/samples/{config.vision_test}.mp4"
+        if config.mode == "visiontest":
+            file_path = f"./camera/sim_camera/samples/{config.visiontest}.mp4"
             self.cap = cv.VideoCapture(file_path)
             self.read_frame = self.read_cap
+        else:
+            self.video = SimVideo()
+            self.read_frame = self.read_sim_video
 
     def run(self):
         while len(self.read_frame()) == 0:
@@ -35,6 +35,7 @@ class SimModel:
         self.h = int(frame.shape[0])
         print(self.h)
         print(self.w)
+        
         while True:
             frame = self.read_frame()
             if len(frame) > 0:
