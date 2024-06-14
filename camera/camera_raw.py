@@ -62,6 +62,9 @@ class Camera:
                 frame = self.read_frame()
                 if len(frame) > 0:
                     detections = self.detect(frame=frame)
+                    if self.config.run == "main":
+                        aimg = self.jetson_utils.cudaToNumpy(frame, self.w, self.h, 4)
+                        frame = cv.cvtColor(aimg.astype(np.uint8), cv.COLOR_RGBA2BGR)
                     child_conn.send([frame, detections])
 
         elif self.config.cameramode == "stream":
