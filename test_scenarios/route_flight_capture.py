@@ -6,7 +6,6 @@ class RouteFlightCaptureScenario:
 
     async def run(self):
         self.Pilot.Logger.log_debug("TEST: Capture scenario")
-        # self.Pilot.params.stage.offboard_mode = True
         self.Pilot.StageHandler.switch_stage(stage="ROUTE")
         while not self.Pilot.params.route.route_finished:
             await asyncio.sleep(1)

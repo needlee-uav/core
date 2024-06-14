@@ -26,25 +26,26 @@ class OffboardHandler:
                     VelocityBodyYawspeed(command.forward_m_s, command.right_m_s, command.down_m_s, command.yawspeed_deg_s))
             await asyncio.sleep(0.05)
 
-    #TODO not sure about command accepting logic here
-    def update_command(self, command):
-        self.Pilot.Logger.log_debug("OFFBOARD: update command")
-        command.timeout = datetime.datetime.now() + datetime.timedelta(0, command.duration)
-        self.Pilot.params.offboard.command = command
-        self.Pilot.params.offboard.busy = False
+    
+    def update_command(self, command, stage):
+        if self.Pilot.params.stage.name == stage:
+            self.Pilot.Logger.log_debug("OFFBOARD: update command")
+            command.timeout = datetime.datetime.now() + datetime.timedelta(0, command.duration)
+            self.Pilot.params.offboard.command = command
+            self.Pilot.params.offboard.busy = False
         
     async def handle_capture(self):
         self.Pilot.Logger.log_debug("OFFBOARD: enable capturing")
         while True:
             if self.Pilot.params.stage.name == "CAPTURE" and self.Pilot.params.target.target_captured != True:
                 self.Pilot.Logger.log_debug("CAPTURE: start")
-                self.update_command(OffboardComand(0,0,0,0,0))
+                self.update_command(OffboardComand(0,0,0,0,0), "CAPTURE")
                 await self.center_target()
                 while not self.Pilot.params.target.target_captured and self.Pilot.params.target.target_detected:
                     print(self.Pilot.params.target.target_captured)
                     print(self.Pilot.params.target.target_detected)
                     await asyncio.sleep(0.1)
-                self.update_command(OffboardComand(0,0,0,0,0))
+                self.update_command(OffboardComand(0,0,0,0,0), "CAPTURE")
                 self.Pilot.Logger.log_debug("CAPTURE: end")
             await asyncio.sleep(0.1)
 
@@ -76,7 +77,7 @@ class OffboardHandler:
             if forward_m_s != 1.0:
                 if previous != [forward_m_s, right_m_s, down_m_s, yawspeed_deg_s]:
                     print("update")
-                    self.update_command(OffboardComand(0,forward_m_s, right_m_s, down_m_s, yawspeed_deg_s))
+                    self.update_command(OffboardComand(0,forward_m_s, right_m_s, down_m_s, yawspeed_deg_s), "CAPTURE")
                     previous = [forward_m_s, right_m_s, down_m_s, yawspeed_deg_s]
             elif target_lost_count < 5:
                 target_lost_count += 1

@@ -20,10 +20,12 @@ class EmergencyHandler:
     async def handle_sensor_limits(self):
         while self.sensors == False or self.sensors.position.alt == None:
             await asyncio.sleep(0.05)
-
+        while self.sensors.position.alt < 1:
+            await asyncio.sleep(0.05)
         #TODO DOUBLECHECK abs(...) < ...
         while \
             self.sensors.position.alt < self.sensor_limits.alt and \
+            self.sensors.position.alt > self.sensor_limits.min_alt and \
             abs(self.sensors.roll) < self.sensor_limits.roll and \
             abs(self.sensors.pitch) < self.sensor_limits.pitch:
                 await asyncio.sleep(0.05)

@@ -9,8 +9,9 @@ class ConfigCamera:
         self.model = model
 
 class SensorLimits:
-    def __init__(self, alt, roll, pitch):
+    def __init__(self, alt, min_alt, roll, pitch):
         self.alt = alt
+        self.min_alt = min_alt
         self.roll = roll
         self.pitch = pitch
 
@@ -32,6 +33,7 @@ class Config:
         # Set sensor limits
         self.sensor_limits = SensorLimits(
             config_json["sensor_limits"]["alt"],
+            config_json["sensor_limits"]["min_alt"],
             config_json["sensor_limits"]["roll"],
             config_json["sensor_limits"]["pitch"]
         )

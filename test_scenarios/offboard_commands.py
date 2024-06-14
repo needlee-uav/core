@@ -15,12 +15,13 @@ class OffboardCommandsScenario:
             OffboardComand(3, 0, -0.5, 0, 0),
             OffboardComand(15, 0.5, 0, 0, 0),
             OffboardComand(5, 0, 0, 0, 0),
-            OffboardComand(5, 0, 0, 0.5, 0)
+            OffboardComand(5, 0, 0, 0.3, 0),
+            OffboardComand(6, 0, 0, -0.3, 0),
         ]
-        
+        self.Pilot.StageHandler.switch_stage(stage="OFFBOARD")
         for command in commands:
             if self.Pilot.params.stage.name == "CAPTURE": break
-            self.Pilot.OffboardHandler.update_command(command)
+            self.Pilot.OffboardHandler.update_command(command, "OFFBOARD")
 
             while self.Pilot.params.offboard.command.timeout > datetime.datetime.now():
                 await asyncio.sleep(0.05)
