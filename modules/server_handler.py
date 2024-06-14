@@ -10,6 +10,7 @@ class ServerHandler:
         self.config = config
         self.logger = logger
         self.emergency = False
+        self.ready = False
         self.start_websocket()
 
     def process_debug(self):
@@ -93,6 +94,7 @@ class ServerHandler:
                 if self.config.mode == "test":
                     self.Pilot.params.stage.test.id = data["test_mode"]
                     self.Pilot.params.server.enable_camera = data["enable_camera"]
+                    self.ready = True
                     self.Pilot.params.stage.ready = True
                 else:
                     self.logger.log_debug("SERVER: can't perform a test, test mode is not enabled")

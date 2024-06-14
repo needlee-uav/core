@@ -9,9 +9,8 @@ class EmergencyHandler:
         self.server = server
         self.drone = drone
         if timeout:
-            #TODO init on server ready
-            self.timeout = datetime.datetime.now() + datetime.timedelta(0,timeout) 
-            asyncio.ensure_future(self.handle_timeout())
+            self.timeout = 0
+            asyncio.ensure_future(self.handle_timeout(timeout))
         asyncio.ensure_future(self.handle_sensor_limits())
         asyncio.ensure_future(self.handle_server_emergency())
 
@@ -34,7 +33,11 @@ class EmergencyHandler:
                                     \nroll: {self.sensors.roll}\
                                     \npitch: {self.sensors.pitch}")
 
-    async def handle_timeout(self):
+    async def handle_timeout(self, timeout):
+        while not self.server.ready:
+            await asyncio.sleep(0.05)
+        self.timeout = datetime.datetime.now() + datetime.timedelta(0,timeout) 
+        self.logger.log_debug(f"EMERGENCY: {timeout} seconds timeout set")
         while self.timeout > datetime.datetime.now():
             await asyncio.sleep(0.05)
         await self.emergencyLanding("timeout force landing")

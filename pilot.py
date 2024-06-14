@@ -1,8 +1,6 @@
 import asyncio
-import datetime
 import cv2 as cv
 import numpy as np
-from mavsdk.offboard import (VelocityBodyYawspeed)
 from data_classes import Params
 import modules.route_handler as route_handler
 import modules.sensors_handler as sensors_handler
@@ -35,39 +33,20 @@ class Pilot:
         self.StageHandler = stage_handler.StageHandler(Pilot=self)
         self.TakeoffHandler = takeoff_handler.TakeoffHandler(Pilot=self)
         self.OffboardHandler = offboard_handler.OffboardHandler(Pilot=self)
-        self.RouteHandler = route_handler.RouteHandler(Pilot=self)
+        # TODO
+        # self.RouteHandler = route_handler.RouteHandler(Pilot=self)
         if config.mode == "test":
             self.params.stage.test.run = True
             self.TestScenariosHandler = test_scenarios_handler.TestScenariosHandler(Pilot=self)
-
-        asyncio.ensure_future(self.offboard())
 
     async def monitor(self, camera):
         while True:
             self.params.img = camera.frame
             self.params.box = camera.box
             self.params.target.confidence = camera.confidence
-            await asyncio.sleep(0.01)
+            await asyncio.sleep(0.01)#
 
-    # A single source of truth for commands
-    async def offboard(self):
-        while not self.params.stage.in_air:
-            await asyncio.sleep(0.05)
-
-        while True:
-            if not self.params.offboard.busy:
-                self.params.offboard.busy = True
-                command = self.params.offboard.command
-                await self.Drone.offboard.set_velocity_body(
-                    VelocityBodyYawspeed(command.forward_m_s, command.right_m_s, command.down_m_s, command.yawspeed_deg_s))
-            await asyncio.sleep(0.05)
-
-    #TODO not sure about command accepting logic here
-    def update_command(self, command):
-        if command.duration != 0:
-            command.timeout = datetime.datetime.now() + datetime.timedelta(0, command.duration)
-        self.params.offboard.command = command
-        self.params.offboard.busy = False
+    
 
     
 

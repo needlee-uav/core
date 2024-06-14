@@ -1,57 +1,50 @@
 import asyncio
 import datetime
 from mavsdk.offboard import (VelocityBodyYawspeed)
-from math import sqrt, copysign
+from math import copysign
+from data_classes import OffboardComand
 
 class OffboardHandler:
     busy = False
     def __init__(self, Pilot):
         self.Pilot = Pilot
+        asyncio.ensure_future(self.commander())
         if Pilot.config.capturing:
             asyncio.ensure_future(self.handle_capture())
     
-    async def start_offboard(self):
-        await self.Pilot.Drone.offboard.set_velocity_body(
-            VelocityBodyYawspeed(0.0, 0.0, 0.0, 0.0))
-        await self.Pilot.Drone.offboard.start()
-        self.Pilot.Logger.log_debug("OFFBOARD: start")
-        return
+    # A single source of truth for commands
+    async def commander(self):
+        while not self.Pilot.params.stage.in_air:
+            await asyncio.sleep(0.05)
 
-    async def finish_offboard(self):
-        await self.Pilot.Drone.offboard.set_velocity_body(
-            VelocityBodyYawspeed(0.0, 0.0, 0.0, 0.0))
-        self.Pilot.Logger.log_debug("OFFBOARD: finish")
-        return
+        while True:
+            if not self.Pilot.params.offboard.busy:
+                self.Pilot.params.offboard.busy = True
+                self.Pilot.Logger.log_debug("OFFBOARD: run command")
+                command = self.Pilot.params.offboard.command
+                await self.Pilot.Drone.offboard.set_velocity_body(
+                    VelocityBodyYawspeed(command.forward_m_s, command.right_m_s, command.down_m_s, command.yawspeed_deg_s))
+            await asyncio.sleep(0.05)
 
-    async def run_offboard_command(self, command):
-        timeout = datetime.datetime.now() + datetime.timedelta(0,command.duration) 
-        self.Pilot.Logger.log_debug("OFFBOARD: run command")
-        await self.Pilot.Drone.offboard.set_velocity_body(
-            VelocityBodyYawspeed(command.forward_m_s, command.right_m_s, command.down_m_s, command.yawspeed_deg_s))
-        while timeout > datetime.datetime.now():
-            if self.Pilot.params.stage.name == "CAPTURE":
-                self.Pilot.Logger.log_debug("OFFBOARD: cancel command on capturing")
-                self.busy = False
-                return
-            await asyncio.sleep(0.1)
-        self.Pilot.Logger.log_debug("OFFBOARD: finish command")
-        self.busy = False
-        return
+    #TODO not sure about command accepting logic here
+    def update_command(self, command):
+        self.Pilot.Logger.log_debug("OFFBOARD: update command")
+        command.timeout = datetime.datetime.now() + datetime.timedelta(0, command.duration)
+        self.Pilot.params.offboard.command = command
+        self.Pilot.params.offboard.busy = False
         
     async def handle_capture(self):
         self.Pilot.Logger.log_debug("OFFBOARD: enable capturing")
         while True:
             if self.Pilot.params.stage.name == "CAPTURE" and self.Pilot.params.target.target_captured != True:
-                await self.start_offboard()
                 self.Pilot.Logger.log_debug("CAPTURE: start")
-                await asyncio.sleep(2)
+                self.update_command(OffboardComand(0,0,0,0,0))
                 await self.center_target()
                 while not self.Pilot.params.target.target_captured and self.Pilot.params.target.target_detected:
                     print(self.Pilot.params.target.target_captured)
                     print(self.Pilot.params.target.target_detected)
-                    await asyncio.sleep(1)
-                await self.Pilot.Drone.offboard.set_velocity_body(
-                    VelocityBodyYawspeed(0.0, 0.0, 0.0, 0.0))
+                    await asyncio.sleep(0.1)
+                self.update_command(OffboardComand(0,0,0,0,0))
                 self.Pilot.Logger.log_debug("CAPTURE: end")
             await asyncio.sleep(0.1)
 
@@ -62,16 +55,16 @@ class OffboardHandler:
         target_lost_count = 0
         previous = [0.0, 0.0, 0.0, 0.0]
         while True:
-            if self.Pilot.params.target.confidence > 0.7 and previous == [0,0,0,0]:
+            if best_conf > 0.7 and previous == [0,0,0,0]:
                 self.Pilot.params.target.target_captured = True
                 self.Pilot.params.target.target_detected = False
                 return
             
             conf = self.Pilot.params.target.confidence
-
             if conf > best_conf:
                 best_conf = conf
-                print(f"best confidence: {best_conf}")
+            print(f"confidence: {conf}")
+            print(f"best confidence: {best_conf}")
 
             coords = [
                 (int(self.Pilot.params.box[3]) + int(self.Pilot.params.box[1])) / 2,
@@ -83,8 +76,7 @@ class OffboardHandler:
             if forward_m_s != 1.0:
                 if previous != [forward_m_s, right_m_s, down_m_s, yawspeed_deg_s]:
                     print("update")
-                    await self.Pilot.Drone.offboard.set_velocity_body(
-                        VelocityBodyYawspeed(forward_m_s, right_m_s, down_m_s, yawspeed_deg_s))
+                    self.update_command(OffboardComand(0,forward_m_s, right_m_s, down_m_s, yawspeed_deg_s))
                     previous = [forward_m_s, right_m_s, down_m_s, yawspeed_deg_s]
             elif target_lost_count < 5:
                 target_lost_count += 1
@@ -124,9 +116,9 @@ class OffboardHandler:
         return forward_m_s, right_m_s, down_m_s, yawspeed_deg_s
     
     def calculate_yaw_speed(self, delta):
-        sign = copysign(1, delta) * -1
+        sign = copysign(1, delta)
         if abs(delta) < 0.2: return round(sign * 5, 2)
-        if abs(delta) < 0.5: return round(delta * 20, 2)
+        if abs(delta) < 0.5: return round(sign * 7, 2)
         if abs(delta) > 0.5: return round(sign * 10, 2)
 
     def calculate_forward_speed(self, delta):
@@ -135,5 +127,5 @@ class OffboardHandler:
 
     def calculate_delta(self, size, coords):
         h = round((size[0] / 2 - coords[0]) / (size[0] / 2), 2)
-        w = round((size[1] / 2 - coords[1]) / (size[1] / 2), 2)
+        w = -round((size[1] / 2 - coords[1]) / (size[1] / 2), 2)
         return h, w
