@@ -59,9 +59,9 @@ class Camera:
 
         if self.config.cameramode == "vision":
             while True:
-                frame = self.read_frame()
+                frame, net_img = self.read_frame()
                 if len(frame) > 0:
-                    detections = self.detect(frame=frame)
+                    detections = self.detect(frame=frame, net_img=net_img)
                     if self.config.run == "main":
                         aimg = self.jetson_utils.cudaToNumpy(frame, self.w, self.h, 4)
                         frame = cv.cvtColor(aimg.astype(np.uint8), cv.COLOR_RGBA2BGR)
@@ -97,31 +97,35 @@ class Camera:
             self.camera = self.jetson_utils.gstCamera(self.w, self.h, self.config.camera.camera_address)
             self.read_frame = self.read_camera_video
 
-        while len(self.read_frame()) == 0:
+        while len(self.read_frame()[0]) == 0:
             time.sleep(1)
 
     def read_cap(self):
         ret, frame = self.cap.read()
         if ret:
-            return frame
+            net_img = frame
+            if self.config.run == "main":
+                net_img = self.jetson_utils.cudaFromNumpy(frame)
+            return frame, net_img
         else:
-            return []
+            return [], []
 
     def read_sim_video(self):
         if self.video.frame_available():
             frame = self.video.frame()
-            return frame
+            net_img = frame
+            return frame, net_img
         else:
-            return []
+            return [], []
         
     def read_camera_video(self):
         try:
-            img, width, height = self.camera.CaptureRGBA()
-            # aimg = self.jetson_utils.cudaToNumpy(img, width, height, 4)
-            # frame = cv.cvtColor(aimg.astype(np.uint8), cv.COLOR_RGBA2BGR)
-            return img
+            net_img, width, height = self.camera.CaptureRGBA()
+            aimg = self.jetson_utils.cudaToNumpy(net_img, width, height, 4)
+            frame = cv.cvtColor(aimg.astype(np.uint8), cv.COLOR_RGBA2BGR)
+            return frame, net_img
         except:
-            return []
+            return [], []
         
 
     # VISION OPTIONS
@@ -146,7 +150,7 @@ class Camera:
 
         self.tracker = Tracker()
 
-    def detect_sim(self, frame):
+    def detect_sim(self, frame, net_img):
         blob = cv.dnn.blobFromImage(frame, scalefactor = 1/127.5, size = (self.w, self.h), mean = (127.5, 127.5, 127.5), swapRB=True, crop=False)
         self.net.setInput(blob)
         detections = self.process_sim_detections(self.net.forward())
@@ -177,12 +181,10 @@ class Camera:
                     round(float(confidence), 2)
                 ]
             
-    def detect_main(self, frame):
-        detections = self.net.Detect(frame, self.w, self.h)
+    def detect_main(self, frame, net_img):
+        detections = self.net.Detect(net_img, self.w, self.h)
         detections = self.process_main_detections(detections)
         if not detections:
-            aimg = self.jetson_utils.cudaToNumpy(frame, self.w, self.h, 4)
-            frame = cv.cvtColor(aimg.astype(np.uint8), cv.COLOR_RGBA2BGR)
             self.tracker.track(frame=frame)
             return [False] + self.tracker.cv_box + [0]
         else:
