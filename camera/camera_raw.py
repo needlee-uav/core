@@ -120,10 +120,10 @@ class Camera:
         
     def read_camera_video(self):
         try:
-            net_img, width, height = self.camera.CaptureRGBA()
-            aimg = self.jetson_utils.cudaToNumpy(net_img, width, height, 4)
+            img, width, height = self.camera.CaptureRGBA()
+            aimg = self.jetson_utils.cudaToNumpy(img, width, height, 4)
             frame = cv.cvtColor(aimg.astype(np.uint8), cv.COLOR_RGBA2BGR)
-            return frame, net_img
+            return frame, img
         except:
             return [], []
         
