@@ -114,9 +114,9 @@ class Camera:
     def read_camera_video(self):
         try:
             img, width, height = self.camera.CaptureRGBA()
-            aimg = self.jetson_utils.cudaToNumpy(img, width, height, 4)
-            frame = cv.cvtColor(aimg.astype(np.uint8), cv.COLOR_RGBA2BGR)
-            return frame
+            # aimg = self.jetson_utils.cudaToNumpy(img, width, height, 4)
+            # frame = cv.cvtColor(aimg.astype(np.uint8), cv.COLOR_RGBA2BGR)
+            return img
         except:
             return []
         
@@ -174,10 +174,12 @@ class Camera:
                     round(float(confidence), 2)
                 ]
             
-    def detect_main(self, frame):
-        detections = self.net.Detect(frame, self.w, self.h)
+    def detect_main(self, img):
+        detections = self.net.Detect(img, self.w, self.h)
         detections = self.process_main_detections(detections)
         if not detections:
+            aimg = self.jetson_utils.cudaToNumpy(img, self.w, self.h, 4)
+            frame = cv.cvtColor(aimg.astype(np.uint8), cv.COLOR_RGBA2BGR)
             self.tracker.track(frame=frame)
             return [False] + self.tracker.cv_box + [0]
         else:
