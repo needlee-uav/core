@@ -175,7 +175,30 @@ class Camera:
                 ]
             
     def detect_main(self, frame):
-        detections = self.model.Detect(frame, self.w, self.h)
-        #self.process_detections(detections)
-        return [5,6,7,8,9]
+        detections = self.net.Detect(frame, self.w, self.h)
+        detections = self.process_main_detections(detections)
+        if not detections:
+            self.tracker.track(frame=frame)
+            return [False] + self.tracker.cv_box + [0]
+        else:
+            self.tracker.destroy()
+            return detections
     
+    def process_main_detections(self, detections):
+        for d in detections:
+            if d.ClassID == self.classPerson:
+                self.tracker.update([
+                    int(d.Left),
+                    int(d.Top),
+                    int(d.Right),
+                    int(d.Bottom)
+                ])
+                return [
+                    True,
+                    int(d.Left),
+                    int(d.Top),
+                    int(d.Right),
+                    int(d.Bottom),
+                    30
+                ]
+        
