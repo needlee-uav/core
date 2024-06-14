@@ -44,7 +44,7 @@ class Pilot:
             self.params.img = camera.frame
             self.params.box = camera.box
             self.params.target.confidence = camera.confidence
-            await asyncio.sleep(0.01)#
+            await asyncio.sleep(0.01)
 
     
 

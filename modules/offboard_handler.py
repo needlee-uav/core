@@ -16,7 +16,6 @@ class OffboardHandler:
     async def commander(self):
         while not self.Pilot.params.stage.in_air:
             await asyncio.sleep(0.05)
-
         while True:
             if not self.Pilot.params.offboard.busy:
                 self.Pilot.params.offboard.busy = True

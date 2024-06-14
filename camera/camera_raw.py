@@ -73,10 +73,16 @@ class Camera:
     # CAMERA OPTIONS
     def pick_camera_option(self):
         if self.config.mode == "visiontest":
-            self.cap = cv.VideoCapture(
-                f"./camera/sim_camera/samples/{self.config.visiontest}.mp4"
-            )
-            self.read_frame = self.read_cap
+            if self.config.visiontest == 101 and self.config.run == "main":
+                import jetson_utils
+                self.jetson_utils = jetson_utils
+                self.camera = self.jetson_utils.gstCamera(self.w, self.h, self.config.camera.camera_address)
+                self.read_frame = self.read_camera_video
+            else:
+                self.cap = cv.VideoCapture(
+                    f"./camera/sim_camera/samples/{self.config.visiontest}.mp4"
+                )
+                self.read_frame = self.read_cap
 
         elif self.config.run == "sim":
             self.video = SimVideo()
