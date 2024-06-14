@@ -73,9 +73,10 @@ class Camera:
     # CAMERA OPTIONS
     def pick_camera_option(self):
         if self.config.mode == "visiontest":
-            if self.config.visiontest == 101 and self.config.run == "main":
+            if self.config.run == "main":
                 import jetson_utils
                 self.jetson_utils = jetson_utils
+            if self.config.visiontest == 101 and self.config.run == "main":
                 self.camera = self.jetson_utils.gstCamera(self.w, self.h, self.config.camera.camera_address)
                 self.read_frame = self.read_camera_video
             else:
