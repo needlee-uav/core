@@ -63,8 +63,7 @@ class OffboardHandler:
             conf = self.Pilot.params.target.confidence
             if conf > best_conf:
                 best_conf = conf
-            print(f"confidence: {conf}")
-            print(f"best confidence: {best_conf}")
+            self.Pilot.Logger.log_debug(f"confidence: {conf} | best: {best_conf}")
 
             coords = [
                 (int(self.Pilot.params.box[3]) + int(self.Pilot.params.box[1])) / 2,

@@ -4,7 +4,6 @@ import asyncio
 from mavsdk import System
 import pilot
 from multiprocessing import Process, Pipe
-from camera.camera import view_camera_video
 from camera.camera_raw import Camera
 from config import Config
 from modules.logger import Logger
