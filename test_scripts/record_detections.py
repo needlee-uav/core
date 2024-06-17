@@ -17,14 +17,10 @@ with open("detections.txt","w") as f:
 		frame = cv.cvtColor(aimg.astype(np.uint8), cv.COLOR_RGBA2BGR)
 		cv.imwrite(f"{count}_{size}px.png", frame)
 		detections = net.Detect(img, size, size)
-		
-	
+
 		if len(detections) > 0:
 			for detection in detections:
-				if detection.ClassID == 1: 
+				if detection.ClassID == 1:
 					print(count)
 					f.write(f"{count}: {int(detection.Left)} {int(detection.Top)} {int(detection.Right)} {int(detection.Bottom)} {detection.Confidence}")
 					f.write('\n')
-            
-
-
