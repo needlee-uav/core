@@ -66,7 +66,7 @@ class Camera:
 
         elif self.config.cameramode == "stream":
             while True:
-                frame = self.read_frame()
+                frame, net_img = self.read_frame()
                 if len(frame) > 0:
                     child_conn.send([frame, []])
 
