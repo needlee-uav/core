@@ -34,6 +34,7 @@ async def run():
     # INIT MAVSDK & PILOT
     if config.mode != "visiontest":
         drone = System()
+        logger.log_debug("INIT")
         await drone.connect(system_address=config.system_address)
         logger.log_debug("INIT: Waiting for drone to connect...")
         async for state in drone.core.connection_state():

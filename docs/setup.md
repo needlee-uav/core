@@ -1,3 +1,9 @@
+## JETSON JETPACK4.6
+pip3 install MAVProxy
+sudo apt-get remove modemmanager
+mavproxy.py --master /dev/ttyACM0 --baud 56700
+(add --daemon flag for the background run)
+
 pip install empy==3.3.4
 make px4_sitl gazebo-classic
 
