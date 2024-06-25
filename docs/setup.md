@@ -1,28 +1,52 @@
-## JETSON JETPACK4.6
-pip3 install MAVProxy
-sudo apt-get remove modemmanager
+## JETSON JETPACK4.6 | QENG 
+sudo apt update
+sudo apt upgrade
+sudo apt-get update
+sudo apt-get upgrade
+
+python3 -m pip install --upgrade pip
+python3 -m pip install MAVProxy
+python3 -m pip install --upgrade wheel
+python3 -m pip install protobuf
+python3 -m pip install mavsdk
+python3 -m pip install python-socketio
+python3 -m pip install python-socketio[client]
+
+git clone https://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@github.com/needlee-uav/core.git
+sudo reboot
+
+TEST 1
+sudo chmod a+rw /dev/ttyACM0
 mavproxy.py --master /dev/ttyACM0 --baud 56700
-(add --daemon flag for the background run)
 
-pip install empy==3.3.4
-make px4_sitl gazebo-classic
+TEST 2
+cd core
+python3 test.py
 
-pip3 install --user --upgrade pip
-pip3 install protobuf==3.19.6
-pip3 install mavsdk
-pip3 install aioconsole
+TEST 3
+python3 main.py --run main --server web --mode test --camera none -> Run and check main.log for the line "INIT: Connected to drone!"
 
-pip3 install Flask
-pip3 install gunicorn
-pip3 install eventlet
-pip3 install Flask-socketio
-pip3 install python-engineio
-pip3 install python-socketio
-pip3 install simple-websocket
-pip3 install python-socketio[client]
 
-pip3 install numpy==1.19.4
-pip3 install opencv-python
+CAMERA
+https://www.youtube.com/watch?v=bcM5AQSAzUY
+
+cd 
+git clone --recursive https://github.com/dusty-nv/jetson-inference
+cd jetson-inference/
+mkdir build
+cd build/
+cmake ../
+make
+sudo make install
+sudo ldconfig
+
+cd 
+cd core
+python3 main.py --run main --server web --mode visiontest --camera vision --visiontest 101
+
+TEST SYS
+python3 main.py --run main --server web --mode test --camera stream
+
 
 ## Setup test environment on Ubuntu 22.04
 Test instance reads Gazebo sim camera directly from the screen. Pay attention to the camera module settings
