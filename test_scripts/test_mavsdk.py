@@ -14,8 +14,6 @@ async def run():
         if state.is_connected:
             print(f"-- Connected to drone!")
             break
-
-
    
     while True:
         print("Staying connected, press Ctrl-C to exit")
