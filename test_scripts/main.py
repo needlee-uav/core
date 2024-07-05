@@ -3,7 +3,7 @@ import cv2 as cv
 import asyncio
 from mavsdk import System
 from multiprocessing import Process, Pipe
-from test_scripts.cam import Camera
+from cam import Camera
 
 async def run():
     # CONFIGURATE
