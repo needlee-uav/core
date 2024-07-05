@@ -33,6 +33,7 @@ Download the extended one, 8.7GB
 
 ```
 sudo usermod -a -G sudo username
+sudo adduser $USER $(stat --format="%G" /dev/ttyACM0 )
 sudo apt update
 sudo apt upgrade
 sudo apt-get update
