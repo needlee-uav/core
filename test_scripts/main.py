@@ -3,7 +3,7 @@ import cv2 as cv
 import asyncio
 from mavsdk import System
 from multiprocessing import Process, Pipe
-from test_cam import Camera
+from test_scripts.cam import Camera
 
 async def run():
     # CONFIGURATE
@@ -18,8 +18,6 @@ async def run():
         await asyncio.sleep(0.05)
     print("CAM READY")
     
-    while True:
-        await asyncio.sleep(0.05)
     drone = System()
     print("INIT")
     await drone.connect(system_address="serial:///dev/ttyACM0")
