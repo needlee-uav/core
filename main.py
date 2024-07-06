@@ -4,7 +4,7 @@ import asyncio
 from mavsdk import System
 import pilot
 from multiprocessing import Process, Pipe
-from camera.camera_raw import Camera
+
 from config import Config
 from modules.logger import Logger
 from modules.server_handler import ServerHandler
@@ -20,16 +20,28 @@ async def run():
     logger.log_debug(config.config_print)
     print(config.config_print)
 
-    # INIT SERVER
-    if config.server != "serverless":
-        server = ServerHandler(logger, config)
-
-    # INIT CAMERA
+    # CAMERA BEFORE ANYTHING ELSE
     if config.cameramode != "none":
-        camera = Camera(config=config)
+        camera = None
+        if config.mode == "main":
+            from camera.camera_jetson import Camera
+            camera = Camera(config=config)
+        else:
+            from camera.camera_sim import Camera
+            camera = Camera(config=config)
+
         parent_conn, child_conn = Pipe()
         p = Process(target=camera.run, args=(child_conn, ))
         p.start()
+    
+    # CONTINUE ON CAMERA READY ONLY
+    while not parent_conn.recv()[0] == "READY":
+        await asyncio.sleep(0.05)
+    logger.log_debug("CAM READY")
+
+    # INIT SERVER
+    if config.server != "serverless":
+        server = ServerHandler(logger, config)
 
     # INIT MAVSDK & PILOT
     if config.mode != "visiontest":

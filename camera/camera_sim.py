@@ -1,6 +1,6 @@
 import cv2 as cv
 import numpy as np
-import datetime, time
+import time
 from camera.sim_video import SimVideo
 
 class Target:
@@ -10,7 +10,7 @@ class Target:
     x2 = 0
     y2 = 0
     confidence = 0
-    
+
 class Tracker:
     cv_box = [0,0,0,0]
     tracker = False
@@ -56,7 +56,7 @@ class Camera:
     def run(self, child_conn):
         self.pick_camera_option()
         self.init_cv()
-
+        child_conn.send(["READY"])
         if self.config.cameramode == "vision":
             while True:
                 frame, net_img = self.read_frame()
@@ -73,27 +73,13 @@ class Camera:
     # CAMERA OPTIONS
     def pick_camera_option(self):
         if self.config.mode == "visiontest":
-            if self.config.run == "main":
-                import jetson_utils
-                self.jetson_utils = jetson_utils
-            if self.config.visiontest == 101 and self.config.run == "main":
-                self.camera = self.jetson_utils.gstCamera(self.w, self.h, self.config.camera.camera_address)
-                self.read_frame = self.read_camera_video
-            else:
-                self.cap = cv.VideoCapture(
-                    f"./camera/sim_camera/samples/{self.config.visiontest}.mp4"
-                )
-                self.read_frame = self.read_cap
-
+            self.cap = cv.VideoCapture(
+                f"./camera/sim_camera/samples/{self.config.visiontest}.mp4"
+            )
+            self.read_frame = self.read_cap
         elif self.config.run == "sim":
             self.video = SimVideo()
             self.read_frame = self.read_sim_video
-            
-        elif self.config.run == "main":
-            import jetson_utils
-            self.jetson_utils = jetson_utils
-            self.camera = self.jetson_utils.gstCamera(self.w, self.h, self.config.camera.camera_address)
-            self.read_frame = self.read_camera_video
 
         while len(self.read_frame()[0]) == 0:
             time.sleep(1)
@@ -115,16 +101,6 @@ class Camera:
             return frame, net_img
         else:
             return [], []
-        
-    def read_camera_video(self):
-        try:
-            img, width, height = self.camera.CaptureRGBA()
-            aimg = self.jetson_utils.cudaToNumpy(img, width, height, 4)
-            frame = cv.cvtColor(aimg.astype(np.uint8), cv.COLOR_RGBA2BGR)
-            return frame, img
-        except:
-            return [], []
-        
 
     # VISION OPTIONS
     def init_cv(self):
@@ -138,13 +114,6 @@ class Camera:
                 f"./camera/sim_camera/{self.config.camera.model}.caffemodel"
             )
             self.detect = self.detect_sim
-
-        elif self.config.run == "main":
-            import jetson_inference
-            self.jetson_inference = jetson_inference
-            self.classPerson = 1
-            self.net = self.jetson_inference.detectNet(self.config.camera.model, threshold=0.5)
-            self.detect = self.detect_main
 
         self.tracker = Tracker()
 
@@ -178,32 +147,3 @@ class Camera:
                     int(detections[0, 0, i, 6] * self.h),
                     round(float(confidence), 2)
                 ]
-            
-    def detect_main(self, frame, net_img):
-        detections = self.net.Detect(net_img, self.w, self.h)
-        detections = self.process_main_detections(detections)
-        if not detections:
-            self.tracker.track(frame=frame)
-            return [False] + self.tracker.cv_box + [0]
-        else:
-            self.tracker.destroy()
-            return detections
-    
-    def process_main_detections(self, detections):
-        for d in detections:
-            if d.ClassID == self.classPerson:
-                self.tracker.update([
-                    int(d.Left),
-                    int(d.Top),
-                    int(d.Right),
-                    int(d.Bottom)
-                ])
-                return [
-                    True,
-                    int(d.Left),
-                    int(d.Top),
-                    int(d.Right),
-                    int(d.Bottom),
-                    30
-                ]
-        

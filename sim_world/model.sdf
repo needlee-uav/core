@@ -391,7 +391,7 @@
           <image>
             <format>R8G8B8</format>
             <width>640</width>
-            <height>640</height>
+            <height>480</height>
           </image>
           <clip>
             <near>0.05</near>
@@ -410,7 +410,7 @@
             <robotNamespace>typhoon_h480</robotNamespace>
             <interval>1</interval>
             <width>640</width>
-            <height>640</height>
+            <height>480</height>
             <maximum_zoom>8.0</maximum_zoom>
             <video_uri>udp://127.0.0.1:5600</video_uri>
             <system_id>1</system_id>
