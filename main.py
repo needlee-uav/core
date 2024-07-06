@@ -24,11 +24,11 @@ async def run():
     if config.cameramode != "none":
         camera = None
         if config.mode == "main":
-            from camera.camera_jetson import Camera
-            camera = Camera(config=config)
+            import camera.camera_jetson as j
+            camera = j.Camera(config=config)
         else:
-            from camera.camera_sim import Camera
-            camera = Camera(config=config)
+            import camera.camera_jetson as s
+            camera = s.Camera(config=config)
 
         parent_conn, child_conn = Pipe()
         p = Process(target=camera.run, args=(child_conn, ))
