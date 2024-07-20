@@ -23,7 +23,7 @@ async def run():
     # CAMERA BEFORE ANYTHING ELSE
     if config.cameramode != "none":
         camera = None
-        if config.mode == "main":
+        if config.run == "main":
             import camera.camera_jetson as j
             camera = j.Camera(config=config)
         else:
