@@ -34,10 +34,10 @@ async def run():
         p = Process(target=camera.run, args=(child_conn, ))
         p.start()
     
-    # CONTINUE ON CAMERA READY ONLY
-    while not parent_conn.recv()[0] == "READY":
-        await asyncio.sleep(0.05)
-    logger.log_debug("CAM READY")
+        # CONTINUE ON CAMERA READY ONLY
+        while not parent_conn.recv()[0] == "READY":
+            await asyncio.sleep(0.05)
+        logger.log_debug("CAM READY")
 
     # INIT SERVER
     if config.server != "serverless":
