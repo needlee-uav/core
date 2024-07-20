@@ -3,6 +3,7 @@ import time
 
 class SensorsHandler:
     def __init__(self, Pilot):
+        self.nogps = Pilot.config.nogps
         self.Drone = Pilot.Drone
         self.Logger = Pilot.Logger
         self.params = Pilot.params.sensors
@@ -13,10 +14,21 @@ class SensorsHandler:
         asyncio.ensure_future(self.update_vertical_velocity())
 
     async def ready(self):
-        while self.params.position.lat == 0.0:
-            await asyncio.sleep(1)
-        self.params.ready = True
-        self.Logger.log_debug("SENSORS: ready")
+        if self.nogps:
+            self.params.ready = True
+            self.params.pitch = 0
+            self.params.roll = 0
+            self.params.position.lat = 47.39773
+            self.params.position.lon = 8.54564
+            self.params.position.alt = 0
+            self.params.heading = 0
+            self.params.velocity_down_m_s = 0
+            self.Logger.log_debug("SENSORS: NOGPS")
+        else:
+            while self.params.position.lat == 0.0:
+                await asyncio.sleep(1)
+            self.params.ready = True
+            self.Logger.log_debug("SENSORS: ready")
 
     async def update_vertical_velocity(self):
         async for velocity in self.Drone.telemetry.velocity_ned():

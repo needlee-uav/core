@@ -28,6 +28,7 @@ class Config:
         self.visiontest = args.visiontest
         self.capturing = args.capturing
         self.timeout = args.timeout
+        self.nogps = args.nogps
         self.args_autoswitch()
         
         # Set sensor limits
@@ -135,9 +136,17 @@ class Config:
             "--capturing",
             help="Fly without capturing stage if this argument is not set", 
             action="store_true")
+        
+        parser.add_argument(
+            "--nogps",
+            help="Run home tests if nogps set", 
+            action="store_true")
         return parser.parse_args()
 
     def print_config(self):
+        nogps = ""
+        if self.nogps:
+            nogps = f"\nnogps mode"
         camera_config_print = ""
         if self.cameramode != "none":
             camera_config_print = \
@@ -158,6 +167,7 @@ class Config:
         self.config_print = \
             f"\
             \n==== NEEDLEE INIT ====\
+            {nogps}\
             \nrun: {self.run}\
             \nmode: {self.mode}\
             \nserver: {self.server}\

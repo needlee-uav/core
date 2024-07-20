@@ -27,7 +27,7 @@ async def run():
             import camera.camera_jetson as j
             camera = j.Camera(config=config)
         else:
-            import camera.camera_jetson as s
+            import camera.camera_sim as s
             camera = s.Camera(config=config)
 
         parent_conn, child_conn = Pipe()
@@ -53,10 +53,11 @@ async def run():
             if state.is_connected:
                 logger.log_debug("INIT: Connected to drone!")
                 break
-        async for health in drone.telemetry.health():
-            if health.is_global_position_ok and health.is_home_position_ok:
-                logger.log_debug("INIT: Global position state is good enough for flying.")
-                break
+        if not config.nogps:
+            async for health in drone.telemetry.health():
+                if health.is_global_position_ok and health.is_home_position_ok:
+                    logger.log_debug("INIT: Global position state is good enough for flying.")
+                    break
         emergency = EmergencyHandler(server, config.timeout, logger, drone, config.sensor_limits)
         pilot.Pilot(drone=drone, config=config, camera=camera, logger=logger, server=server, emergency=emergency)
 
