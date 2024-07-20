@@ -8,10 +8,11 @@ class SensorsHandler:
         self.Logger = Pilot.Logger
         self.params = Pilot.params.sensors
         asyncio.ensure_future(self.ready())
-        asyncio.ensure_future(self.update_position())
-        asyncio.ensure_future(self.update_heading())
-        asyncio.ensure_future(self.update_pitch_roll())
-        asyncio.ensure_future(self.update_vertical_velocity())
+        if not self.nogps:
+            asyncio.ensure_future(self.update_position())
+            asyncio.ensure_future(self.update_heading())
+            asyncio.ensure_future(self.update_pitch_roll())
+            asyncio.ensure_future(self.update_vertical_velocity())
 
     async def ready(self):
         if self.nogps:
