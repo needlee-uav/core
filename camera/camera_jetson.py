@@ -75,6 +75,7 @@ class Camera:
                 child_conn.send([cv_img, []])
 
         elif self.config.cameramode == "vision":
+            
             while True:
                 img = self.camera.Capture(format='rgb8') 
                 if img is None: # capture timeout
@@ -89,17 +90,17 @@ class Camera:
                     for detection in detections:
                         if detection.ClassID == 1:
                             self.tracker.update([
-                                int(detection.Left),
-                                int(detection.Top),
-                                int(detection.Right),
-                                int(detection.Bottom)
+                                int(detection.Left * self.w),
+                                int(detection.Top * self.h),
+                                int(detection.Right * self.w),
+                                int(detection.Bottom * self.h)
                             ])
                             d = [
                                 True,
-                                int(detection.Left),
-                                int(detection.Top),
-                                int(detection.Right),
-                                int(detection.Bottom),
+                                int(detection.Left * self.w),
+                                int(detection.Top * self.h),
+                                int(detection.Right * self.w),
+                                int(detection.Bottom * self.h),
                                 round(float(detection.Confidence), 2)
                             ]
                             self.tracker.destroy()
