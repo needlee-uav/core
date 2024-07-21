@@ -64,18 +64,27 @@ class Camera:
         self.camera.Capture(format='rgb8') 
         child_conn.send(["READY"])
         print("CAM READY")
-        if self.config.cameramode == "vision":
+        if self.config.cameramode == "stream":
             while True:
-                frame, net_img = self.read_frame()
-                if len(frame) > 0:
-                    detections = self.detect(frame=frame, net_img=net_img)
-                    child_conn.send([frame, detections])
+                img = self.camera.Capture(format='rgb8') 
+                if img is None: # capture timeout
+                    continue
+                jetson_utils.cudaConvertColor(img, self.bgr_img)
+                cv_img = jetson_utils.cudaToNumpy(self.bgr_img)
+                jetson_utils.cudaDeviceSynchronize()
+                child_conn.send([cv_img, []])
+                # frame, net_img = self.read_frame()
+                # if len(frame) > 0:
+                #     detections = self.detect(frame=frame, net_img=net_img)
+                #     
 
-        elif self.config.cameramode == "stream":
+        elif self.config.cameramode == "vision":
             while True:
-                frame, net_img = self.read_frame()
-                if len(frame) > 0:
-                    child_conn.send([frame, []])
+                #TODO
+                pass
+                # frame, net_img = self.read_frame()
+                # if len(frame) > 0:
+                #     child_conn.send([frame, []])
 
 
 
