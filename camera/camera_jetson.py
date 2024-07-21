@@ -64,18 +64,18 @@ class Camera:
         self.camera.Capture(format='rgb8') 
         child_conn.send(["READY"])
         print("CAM READY")
-        # if self.config.cameramode == "vision":
-        #     while True:
-        #         frame, net_img = self.read_frame()
-        #         if len(frame) > 0:
-        #             detections = self.detect(frame=frame, net_img=net_img)
-        #             child_conn.send([frame, detections])
+        if self.config.cameramode == "vision":
+            while True:
+                frame, net_img = self.read_frame()
+                if len(frame) > 0:
+                    detections = self.detect(frame=frame, net_img=net_img)
+                    child_conn.send([frame, detections])
 
-        # elif self.config.cameramode == "stream":
-        #     while True:
-        #         frame, net_img = self.read_frame()
-        #         if len(frame) > 0:
-        #             child_conn.send([frame, []])
+        elif self.config.cameramode == "stream":
+            while True:
+                frame, net_img = self.read_frame()
+                if len(frame) > 0:
+                    child_conn.send([frame, []])
 
 
 
