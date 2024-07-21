@@ -73,28 +73,49 @@ class Camera:
                 cv_img = jetson_utils.cudaToNumpy(self.bgr_img)
                 jetson_utils.cudaDeviceSynchronize()
                 child_conn.send([cv_img, []])
-                # frame, net_img = self.read_frame()
-                # if len(frame) > 0:
-                #     detections = self.detect(frame=frame, net_img=net_img)
-                #     
 
         elif self.config.cameramode == "vision":
             while True:
-                #TODO
-                pass
-                # frame, net_img = self.read_frame()
-                # if len(frame) > 0:
-                #     child_conn.send([frame, []])
+                img = self.camera.Capture(format='rgb8') 
+                if img is None: # capture timeout
+                    continue
+                jetson_utils.cudaConvertColor(img, self.bgr_img)
+                cv_img = jetson_utils.cudaToNumpy(self.bgr_img)
+                jetson_utils.cudaDeviceSynchronize()
+                detections = self.net.Detect(img, 640, 480)
+                d = []
+                
+                if len(detections) > 0:
+                    for detection in detections:
+                        if detection.ClassID == 1:
+                            self.tracker.update([
+                                int(detection.Left),
+                                int(detection.Top),
+                                int(detection.Right),
+                                int(detection.Bottom)
+                            ])
+                            d = [
+                                True,
+                                int(detection.Left),
+                                int(detection.Top),
+                                int(detection.Right),
+                                int(detection.Bottom),
+                                round(float(detection.Confidence), 2)
+                            ]
+                            self.tracker.destroy()
+                else: 
+                    self.tracker.track(frame=cv_img)
+                    d =  [False] + self.tracker.cv_box + [0]
 
+                child_conn.send([cv_img, d])
 
-
-    def read_cap(self):
-        ret, frame = self.cap.read()
-        if ret:
-            net_img = frame
-            if self.config.run == "main":
-                net_img = self.jetson_utils.cudaFromNumpy(frame)
-            return frame, net_img
-        else:
-            return [], []
-        
+    # def read_cap(self):
+    #     ret, frame = self.cap.read()
+    #     if ret:
+    #         net_img = frame
+    #         if self.config.run == "main":
+    #             net_img = self.jetson_utils.cudaFromNumpy(frame)
+    #         return frame, net_img
+    #     else:
+    #         return [], []
+   
