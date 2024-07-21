@@ -104,6 +104,9 @@ class Camera:
                                 round(float(detection.Confidence), 2)
                             ]
                             self.tracker.destroy()
+                            break
+                    if d == []:
+                        d = [False] + self.tracker.cv_box + [0]
                 else: 
                     self.tracker.track(frame=cv_img)
                     d =  [False] + self.tracker.cv_box + [0]
