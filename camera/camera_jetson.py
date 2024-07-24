@@ -63,7 +63,6 @@ class Camera:
         
         self.camera.Capture(format='rgb8') 
         child_conn.send(["READY"])
-        print("CAM READY")
         if self.config.cameramode == "stream":
             while True:
                 img = self.camera.Capture(format='rgb8') 
