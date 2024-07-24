@@ -9,7 +9,7 @@ class EmergencyHandler:
         self.server = server
         self.drone = drone
         if timeout:
-            self.timeout = 0
+            # self.timeout = 0
             asyncio.ensure_future(self.handle_timeout(timeout))
         asyncio.ensure_future(self.handle_sensor_limits())
         asyncio.ensure_future(self.handle_server_emergency())
