@@ -85,7 +85,9 @@ class Config:
             sys.exit(f"Can't run serverless with mode={self.mode}.")
 
     def load_config(self):
-        config_file = open('config.json')
+        path = '/home/jetson/core/config.json'
+        # path = 'config.json'
+        config_file = open(path)
         config_json = json.load(config_file)
         config_file.close()
         return config_json
