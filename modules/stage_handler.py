@@ -20,6 +20,11 @@ class StageHandler:
                 self.switch_stage(stage="TEST" if self.Pilot.params.stage.test.run else "ROUTE")
             elif self.stage.name == "PREARM" or self.stage.name == "TAKEOFF":
                 pass
+            elif not self.Pilot.config.capturing:
+                pass
+                #TODO Check with sim run without passing "NOT CAPTURING"
+                #ERROR 2024-07-26 16:26:50,494 - Task exception was never retrieved
+                #future: <Task finished name='Task-12' coro=<StageHandler.handle_stages() done, defined at /home/jetson/Desktop/core/modules/stage_handler.py:12> exception=IndexError('list index out of range')>
             elif self.Pilot.params.box[0] != 0  and self.Pilot.config.capturing and (self.stage.name == "ROUTE" or self.stage.name == "OFFBOARD"):
                 if self.capture_timeout < datetime.datetime.now():
                     self.target.target_detected = True
