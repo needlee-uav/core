@@ -56,3 +56,5 @@ class EmergencyHandler:
                 VelocityBodyYawspeed(0.0, 0.0, 0.0, 0.0))
         await self.drone.offboard.start()
         await self.drone.action.land()
+        # TODO KILL ON ALT STABLE && ~0m
+        # RUNS ARM ON DOUBLE EMERGENCY
