@@ -23,9 +23,9 @@ class TakeoffHandler:
             await asyncio.sleep(0.1)
         await self.arm_on_takeoff()
         down_m_s = 0
-        while down_m_s > -0.7 and not self.Pilot.params.stage.in_air:
+        while down_m_s > -0.6 and not self.Pilot.params.stage.in_air:
             down_m_s = round(down_m_s - 0.1, 1)
-            if down_m_s <= -0.7:
+            if down_m_s <= -0.6:
                 self.Pilot.Logger.log_debug("TAKEOFF: velocity to high! Land")
                 await self.Pilot.Drone.action.land()
                 break
@@ -46,6 +46,8 @@ class TakeoffHandler:
 
 
     async def kill_on_takeoff_shake(self):
+        while self.Pilot.params.stage.name != "TAKEOFF":
+            await asyncio.sleep(0.1)
         while self.Pilot.params.stage.name == "TAKEOFF":
             if (abs(self.Pilot.params.sensors.pitch) > 5 or abs(self.Pilot.params.sensors.roll) > 5):
                 print("TAKEOFF: shake! KILL")
