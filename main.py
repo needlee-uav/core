@@ -16,7 +16,7 @@ async def run():
     camera = None
     server = None
     config = Config()
-    logger = Logger()
+    logger = Logger(config.run)
     logger.log_debug(config.config_print)
     print(config.config_print)
 

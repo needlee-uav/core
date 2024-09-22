@@ -17,8 +17,6 @@ class SensorLimits:
 
 class Config:
     def __init__(self):
-        config_json = self.load_config()
-
         # Set arguments
         args = self.parse_args()
         self.run = args.run
@@ -30,7 +28,7 @@ class Config:
         self.timeout = args.timeout
         self.nogps = args.nogps
         self.args_autoswitch()
-        
+        config_json = self.load_config()
         # Set sensor limits
         self.sensor_limits = SensorLimits(
             config_json["sensor_limits"]["alt"],
@@ -86,7 +84,8 @@ class Config:
 
     def load_config(self):
         path = '/home/jetson/Desktop/core/config.json'
-        # path = 'config.json'
+        if self.run == "sim":
+            path = 'config.json'
         config_file = open(path)
         config_json = json.load(config_file)
         config_file.close()

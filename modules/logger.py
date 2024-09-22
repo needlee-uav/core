@@ -7,9 +7,12 @@ class Logger:
     debug_log = []
     sensors = None
 
-    def __init__(self):
-        logging.basicConfig(filename='/home/jetson/Desktop/core/main.log', filemode='w', format='%(levelname)s %(asctime)s - %(message)s', level=logging.DEBUG)
-        # logging.basicConfig(filename='main.log', filemode='w', format='%(levelname)s %(asctime)s - %(message)s', level=logging.DEBUG)
+    def __init__(self, run):
+        if run == "sim":
+            logging.basicConfig(filename='main.log', filemode='w', format='%(levelname)s %(asctime)s - %(message)s', level=logging.DEBUG)
+        elif run == "main":
+            logging.basicConfig(filename='/home/jetson/Desktop/core/main.log', filemode='w', format='%(levelname)s %(asctime)s - %(message)s', level=logging.DEBUG)
+        
         asyncio.ensure_future(self.log())
         self.log_debug("LOGGER: ready")
 
