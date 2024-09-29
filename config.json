@@ -1,7 +1,7 @@
 {
     "sensor_limits": {
         "alt": 6,
-        "min_alt": 0.9,
+        "min_alt": 0.5,
         "roll": 10,
         "pitch": 20
     },

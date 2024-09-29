@@ -49,7 +49,7 @@ class TakeoffHandler:
         while self.Pilot.params.stage.name != "TAKEOFF":
             await asyncio.sleep(0.1)
         while self.Pilot.params.stage.name == "TAKEOFF":
-            if (abs(self.Pilot.params.sensors.pitch) > 5 or abs(self.Pilot.params.sensors.roll) > 5):
-                print("TAKEOFF: shake! KILL")
+            if (abs(self.Pilot.params.sensors.pitch) > 10 or abs(self.Pilot.params.sensors.roll) > 10):
+                self.Pilot.Logger.log_debug("TAKEOFF: shake! KILL")
                 await self.Pilot.Drone.action.kill()
             await asyncio.sleep(0.05)
